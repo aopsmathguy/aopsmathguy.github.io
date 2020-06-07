@@ -14,10 +14,10 @@ var difficulty = 0;
 var backround;
 function startGame() {
     jumper = new component(250, 600,0, 40, 60, "blue",  "");
-    backround = new component(250, 350,0, 500, 700, "a0deff",  "");
+    backround = new component(250, 350,0, 500, 700, "#a0deff",  "");
     clouds = [];
     clouds.push(new platform(150, 500,100, 100, "normal",0,"right","white",  "",0));
-    var startPltfrm = new platform(250, 650,80, 10, "normal",0,"right","00CF00",  "",0);
+    var startPltfrm = new platform(250, 650,80, 10, "normal",0,"right","#00CF00",  "",0);
     platforms = [];
     platforms.push(startPltfrm);
     myGameArea.start();
@@ -64,7 +64,7 @@ var makePlatforms = function(pltfrms){
     if (Math.random()<(0.05+difficulty*0.4)){
       rndmfakex = 250+(400)*(Math.random()-0.5);
       rndmfakedy = (maxGap - 0)*Math.random()+0;
-      pltfrms.push(new platform(rndmfakex, highestPlat-rndmfakedy,80, 10, "fake",0,"right","8B4513",  "",0));
+      pltfrms.push(new platform(rndmfakex, highestPlat-rndmfakedy,80, 10, "fake",0,"right","#8B4513",  "",0));
     }
     var rndmx = 250+(400)*(Math.random()-0.5);
     if (Math.random()<(0.1+difficulty*0.7)){//moving
@@ -77,14 +77,14 @@ var makePlatforms = function(pltfrms){
         if (Math.random()<(0.1)){
             pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"right","grey",  "",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"right","00CF00",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"right","#00CF00",  "",0));
       }
       else {
 
         if (Math.random()<(0.1)){
             pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"left","grey",  "",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"left","00CF00",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"left","#00CF00",  "",0));
       }
 
     }
@@ -95,7 +95,7 @@ var makePlatforms = function(pltfrms){
       if (Math.random()<(0.1)){
           pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "spring",0,"right","grey",  "",70*(Math.random()-0.5)));
       }
-      pltfrms.push(new platform(rndmx, highestPlat,80, 10, "normal",0,"right","00CF00",  "",0));
+      pltfrms.push(new platform(rndmx, highestPlat,80, 10, "normal",0,"right","#00CF00",  "",0));
     }
 
   }
