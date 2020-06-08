@@ -200,9 +200,7 @@ var updateJumperVars = function(jmpr)
 }
 var updateScrollHeight = function(){
     maxHeight = Math.max(jumperHeight,maxHeight);
-    if (maxHeight - scrollHeight > 350){
-        scrollHeight += (maxHeight-scrollHeight-350)/20;
-    }
+    scrollHeight += (maxHeight-scrollHeight-350)/20;
 }
 var displayScore = function(){
     ctx = myGameArea.canvas.getContext("2d");
