@@ -1,6 +1,7 @@
 
 var jumper;
 var scrollHeight=0;
+var maxHeight = 0;
 var minGap=20;
 var maxGap=60;
 var gravity = 0.5;
@@ -198,17 +199,18 @@ var updateJumperVars = function(jmpr)
     }
 }
 var updateScrollHeight = function(){
-    if (jumperHeight - scrollHeight > 350){
-        scrollHeight = jumperHeight-350;
+    maxHeight = Math.max(jumperHeight,maxHeight);
+    if (maxHeight - scrollHeight > 350){
+        scrollHeight += (maxHeight-scrollHeight-350)/20;
     }
 }
 var displayScore = function(){
     ctx = myGameArea.canvas.getContext("2d");
     ctx.font = "30px Arial";
-    ctx.fillText(Math.floor(scrollHeight), 10, 35);
+    ctx.fillText(Math.floor(maxHeight), 10, 35);
 }
 var updateDifficulty = function(){
-    difficulty = 1 - 15000/(scrollHeight+15000);
+    difficulty = 1 - 15000/(maxHeight+15000);
     minGap = 165 * difficulty + 20;
     maxGap = 125 * difficulty + 60;
 }
