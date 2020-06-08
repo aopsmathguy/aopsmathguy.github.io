@@ -42,8 +42,6 @@ var deleteClouds = function(clds){
     while((clds[0]).y+scrollHeight/2 > 800)
     {
         clds.shift();
-        var nextPlat = clds[0];
-        lowestPlat = nextPlat.y;
     }
 }
 var renderJumper = function(jmpr){
@@ -298,5 +296,6 @@ function updateGameArea() {
     renderJumper(jumper);
     displayScore();
     updateDifficulty();
+    console.log(platforms.length);
     jumper.prevY = jumperHeight;
 }
