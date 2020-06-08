@@ -71,20 +71,20 @@ var makePlatforms = function(pltfrms){
       moving = true;
       rndmdy = (maxGap - minGap)*Math.random()+minGap;
       highestPlat-=rndmdy;
-      var speed = 6*Math.random()
+      var speed = 3*(Math.random()+1)
       if (Math.random()<0.5){
 
         if (Math.random()<(0.1)){
             pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"right","grey",  "",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"right","#00CF00",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"right","#8080FF",  "",0));
       }
       else {
 
         if (Math.random()<(0.1)){
             pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"left","grey",  "",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"left","#00CF00",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"left","#8080FF",  "",0));
       }
 
     }
