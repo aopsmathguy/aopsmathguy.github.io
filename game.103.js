@@ -13,12 +13,18 @@ var platforms;
 var clouds;
 var difficulty = 0;
 var backround;
+var platheight = 19.3;
+var totalFrames = 0;
+var bright;
+var dead = false;
+var restimer = 0;
+var boing= new Audio("sounds/boing.mp3");
 function startGame() {
-    jumper = new component(250, 600,0, 40, 60, "blue",  "",1);
+    jumper = new component(250, 600,0, 40, 60, "images/character1.png",  "image",1);
     backround = new component(250, 350,0, 500, 700, "#a0deff",  "",1);
     clouds = [];
-    clouds.push(new platform(150, 500,100, 100, "normal",0,"right","white",  "",0));
-    var startPltfrm = new platform(250, 650,80, 10, "normal",0,"right","#00CF00",  "",0);
+    clouds.push(new platform(150, 500,256, 140, "normal",0,"right","images/cloud.png",  "image",0));
+    var startPltfrm = new platform(250, 650,80, platheight, "normal",0,"right","images/green.png",  "image",0);
     platforms = [];
     platforms.push(startPltfrm);
     myGameArea.start();
@@ -27,14 +33,24 @@ var makeClouds = function(clds){
   while((clds[clds.length - 1]).y + scrollHeight/2 > - 100){
       var rndmx = 250+(400)*(Math.random()-0.5);
       var rndmdy = 500*Math.random();
-      clds.push(new platform(rndmx, (clds[clds.length - 1]).y - rndmdy,100, 100, "normal",0,"right","white",  "",0));
+      clds.push(new platform(rndmx, (clds[clds.length - 1]).y - rndmdy,256, 140, "normal",0,"right","images/cloud.png",  "image",0));
    }
+}
+var cloudOp = function(bright)
+{
+    if (bright<0.5)
+    {
+        return 0;
+    }
+    else {
+        return 2*(bright - 0.5);
+    }
 }
 var renderClouds = function(pltfrms){
     for (var i = 0; i < pltfrms.length; i++)
     {
         var pltfrm = pltfrms[i];
-        var render = new component(pltfrm.x+pltfrm.offset,pltfrm.y+pltfrm.height/2+scrollHeight/2,0,pltfrm.width,pltfrm.height, pltfrm.color, pltfrm.type,1-difficulty);
+        var render = new component(pltfrm.x+pltfrm.offset,pltfrm.y+pltfrm.height/2+scrollHeight/2,0,pltfrm.width,pltfrm.height, pltfrm.color, pltfrm.type,cloudOp(bright));
         render.display();
     }
 }
@@ -67,19 +83,21 @@ var renderPlatforms = function(pltfrms){
     }
 }
 var renderBackround = function(bckrnd){
-  var red  = (Math.floor((1-difficulty)*160)).toString(16);
-  var green = (Math.floor((1-difficulty)*222)).toString(16);
-  var blue = (Math.floor((1-difficulty)*255)).toString(16);
+  bright = 0.6+0.4*Math.cos(totalFrames/500);
+  var red  = (Math.floor(bright*160)).toString(16);
+  var green = (Math.floor(bright*222)).toString(16);
+  var blue = (Math.floor(bright*255)).toString(16);
   bckrnd.changeColor("#" + red + green+ blue);
   bckrnd.display();
+  totalFrames +=1;
 }
 var makePlatforms = function(pltfrms){
   while(highestPlat+scrollHeight > 0){
     var moving;
     if (Math.random()<(0.05+difficulty*0.4)){
       rndmfakex = 250+(400)*(Math.random()-0.5);
-      rndmfakedy = (maxGap - 0)*Math.random()+0;
-      pltfrms.push(new platform(rndmfakex, highestPlat-rndmfakedy,80, 10, "fake",0,"right","#8B4513",  "",0));
+      rndmfakedy = (0.5*Math.random()+0.75)*minGap/2;
+      pltfrms.push(new platform(rndmfakex, highestPlat-rndmfakedy,80, platheight, "fake",0,"right","images/red.png",  "image",0));
     }
     var rndmx = 250+(400)*(Math.random()-0.5);
     if (Math.random()<(0.1+difficulty*0.7)){//moving
@@ -90,16 +108,16 @@ var makePlatforms = function(pltfrms){
       if (Math.random()<0.5){
 
         if (Math.random()<(0.1)){
-            pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"right","grey",  "",70*(Math.random()-0.5)));
+            pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"right","images/spring.png",  "image",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"right","#8080FF",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, platheight, "moving",speed,"right","images/blue.png",  "image",0));
       }
       else {
 
         if (Math.random()<(0.1)){
-            pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"left","grey",  "",70*(Math.random()-0.5)));
+            pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "mspring",speed,"left","images/spring.png",  "image",70*(Math.random()-0.5)));
         }
-        pltfrms.push(new platform(rndmx, highestPlat,80, 10, "moving",speed,"left","#8080FF",  "",0));
+        pltfrms.push(new platform(rndmx, highestPlat,80, platheight, "moving",speed,"left","images/blue.png",  "image",0));
       }
 
     }
@@ -108,9 +126,9 @@ var makePlatforms = function(pltfrms){
       rndmdy = (maxGap - minGap)*Math.random()+minGap;
       highestPlat-=rndmdy;
       if (Math.random()<(0.1)){
-          pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "spring",0,"right","grey",  "",70*(Math.random()-0.5)));
+          pltfrms.push(new platform(rndmx, highestPlat - 10,10, 10, "spring",0,"right","images/spring.png",  "image",70*(Math.random()-0.5)));
       }
-      pltfrms.push(new platform(rndmx, highestPlat,80, 10, "normal",0,"right","#00CF00",  "",0));
+      pltfrms.push(new platform(rndmx, highestPlat,80, platheight, "normal",0,"right","images/green.png",  "image",0));
     }
 
   }
@@ -177,6 +195,9 @@ var resolveCollision = function(jmpr, pltfrm)
 {
     if (pltfrm.platformType =="mspring" || pltfrm.platformType =="spring"){
       jmpr.yVel = Math.max(2*jumpForce, jmpr.yVel);
+      pltfrm.y -=10;
+      pltfrm.height +=10
+      boing.play();
     }
     else {jmpr.yVel = Math.max(jumpForce, jmpr.yVel);}
 }
@@ -228,6 +249,55 @@ var updateDifficulty = function(){
     minGap = 165 * difficulty + 20;
     maxGap = 125 * difficulty + 60;
 }
+var animate = function(jmpr){
+  if (jmpr.xVel < 0){
+    if (jmpr.yVel < jumpForce/2){jmpr.changeColor("images/character1.png");}
+    else {jmpr.changeColor("images/characterjump1.png");}
+  }
+  else {
+    if (jmpr.yVel < jumpForce/2){jmpr.changeColor("images/character2.png");}
+    else {jmpr.changeColor("images/characterjump2.png");}
+  }
+}
+var checkDead = function(){
+    if ((jumperHeight - scrollHeight) < -100)
+    {
+      dead = true;
+      ctx = myGameArea.canvas.getContext("2d");
+      ctx.font = "30px Arial";
+      ctx.fillText("Game Over", 200, 350);
+      ctx.fillText("Press space to try again", 100, 400);
+      restimer += 1;
+      if (myGameArea.keys && myGameArea.keys[32] && restimer > 10)
+      {
+        scrollHeight=0;
+        maxHeight = 0;
+        minGap=20;
+        maxGap=60;
+        gravity = 0.5;
+        jumpForce  = 14;
+        highestPlat = 650;
+        lowestPlat = 650;
+        jumperHeight = 55;
+        platforms;
+        clouds;
+        difficulty = 0;
+        backround;
+        platheight = 19.3;
+        totalFrames = 0;
+        jumper = new component(250, 600,0, 40, 60, "images/character1.png",  "image",1);
+        backround = new component(250, 350,0, 500, 700, "#a0deff",  "",1);
+        clouds = [];
+        clouds.push(new platform(150, 500,256, 140, "normal",0,"right","images/cloud.png",  "image",0));
+        var startPltfrm = new platform(250, 650,80, platheight, "normal",0,"right","images/green.png",  "image",0);
+        platforms = [];
+        platforms.push(startPltfrm);
+        dead = false;
+        restimer = 0;
+      }
+    }
+}
+
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -305,7 +375,7 @@ function component(x, y, dir, width, height, color, type,transparency) {
 
 }
 function updateGameArea() {
-
+    if (!dead){
     myGameArea.clear();
     makeClouds(clouds);
     makePlatforms(platforms);
@@ -316,11 +386,13 @@ function updateGameArea() {
     collideAll(jumper,platforms);
     backoutCollision(jumper,platforms);
     updateScrollHeight();
+    animate(jumper);
     renderBackround(backround);
     renderClouds(clouds);
     renderPlatforms(platforms);
     renderJumper(jumper);
     displayScore();
     updateDifficulty();
-    jumper.prevY = jumperHeight;
+    jumper.prevY = jumperHeight;}
+    checkDead();
 }
