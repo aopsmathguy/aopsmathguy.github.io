@@ -19,6 +19,10 @@ var bright;
 var dead = false;
 var restimer = 0;
 var boing= new Audio("sounds/boing.mp3");
+var jump= new Audio("sounds/jump.mp3");
+var breakk= new Audio("sounds/break.mp3");
+var fall= new Audio("sounds/fall.mp3");
+var fallplayed = false;
 function startGame() {
     jumper = new component(250, 600,0, 40, 60, "images/character1.png",  "image",1);
     backround = new component(250, 350,0, 500, 700, "#a0deff",  "",1);
@@ -166,15 +170,15 @@ var deletePlatforms = function(pltfrms){
         lowestPlat = nextPlat.y;
     }
 }
-var collide = function(jmpr, pltfrm)
+var collide = function(jmpr, pltfrm,pltfrms)
 {
     if (jumperHeight <= 700 - pltfrm.y && jmpr.prevY >= 700 - pltfrm.y){
 
         if (Math.abs(pltfrm.x+pltfrm.offset  - jmpr.x) < (pltfrm.width+jmpr.width)/2){
             if(pltfrm.platformType == "fake")
             {
-                pltfrm.type = "image";
-                pltfrm.color = "images/blank.png";
+                breakk.cloneNode().play();
+                pltfrms.splice(pltfrms.indexOf(pltfrm),1)
             }
             else {
                 resolveCollision(jmpr, pltfrm);
@@ -187,7 +191,7 @@ var collideAll = function(jmpr, pltfrms)
 {
     for (var i = 0; i < pltfrms.length; i++){
         pltfrm = pltfrms[i];
-        collide(jmpr,pltfrm);
+        collide(jmpr,pltfrm,pltfrms);
     }
 }
 
@@ -197,9 +201,12 @@ var resolveCollision = function(jmpr, pltfrm)
       jmpr.yVel = Math.max(2*jumpForce, jmpr.yVel);
       pltfrm.y -=10;
       pltfrm.height +=10
-      boing.play();
+      boing.cloneNode().play();
     }
-    else {jmpr.yVel = Math.max(jumpForce, jmpr.yVel);}
+    else {
+      jmpr.yVel = Math.max(jumpForce, jmpr.yVel);
+      jump.cloneNode().play();
+    }
 }
 var backoutCollision = function(jmpr,pltfrms){
     for (var i = 0; i < pltfrms.length; i++){
@@ -263,13 +270,19 @@ var checkDead = function(){
     if ((jumperHeight - scrollHeight) < -100)
     {
       dead = true;
+
       ctx = myGameArea.canvas.getContext("2d");
       ctx.font = "30px Arial";
       ctx.fillText("Game Over", 200, 350);
       ctx.fillText("Press space to try again", 100, 400);
       restimer += 1;
+      if (!fallplayed){
+          fall.cloneNode().play();
+          fallplayed = true;
+      }
       if (myGameArea.keys && myGameArea.keys[32] && restimer > 10)
       {
+        fallplayed = false;
         scrollHeight=0;
         maxHeight = 0;
         minGap=20;
@@ -376,23 +389,24 @@ function component(x, y, dir, width, height, color, type,transparency) {
 }
 function updateGameArea() {
     if (!dead){
-    myGameArea.clear();
-    makeClouds(clouds);
-    makePlatforms(platforms);
-    deletePlatforms(platforms);
-    deleteClouds(clouds);
-    movePlatforms(platforms);
-    updateJumperVars(jumper);
-    collideAll(jumper,platforms);
-    backoutCollision(jumper,platforms);
-    updateScrollHeight();
-    animate(jumper);
-    renderBackround(backround);
-    renderClouds(clouds);
-    renderPlatforms(platforms);
-    renderJumper(jumper);
-    displayScore();
-    updateDifficulty();
-    jumper.prevY = jumperHeight;}
+      myGameArea.clear();
+      makeClouds(clouds);
+      makePlatforms(platforms);
+      deletePlatforms(platforms);
+      deleteClouds(clouds);
+      movePlatforms(platforms);
+      updateJumperVars(jumper);
+      collideAll(jumper,platforms);
+      backoutCollision(jumper,platforms);
+      updateScrollHeight();
+      animate(jumper);
+      renderBackround(backround);
+      renderClouds(clouds);
+      renderPlatforms(platforms);
+      renderJumper(jumper);
+      displayScore();
+      updateDifficulty();
+      jumper.prevY = jumperHeight;
+    }
     checkDead();
 }
