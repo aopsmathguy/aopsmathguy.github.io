@@ -26,6 +26,10 @@ var myGameArea = {
         window.addEventListener('keyup', function (e) {
             myGameArea.keys[e.keyCode] = false;
         })
+        window.addEventListener('touchmove', function (e) {
+          myGameArea.x = e.touches[0].screenX;
+          myGameArea.y = e.touches[0].screenY;
+        })
     },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -150,11 +154,11 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   }
   this.controls = function()
   {
-    if (myGameArea.keys && myGameArea.keys[39])
+    if (myGameArea.keys && myGameArea.keys[39] || (myGameArea.x && myGameArea.y && myGameArea.x > 600))
     {
       this.wheelBehind.angImp += 0.1;
     }
-    if (myGameArea.keys && myGameArea.keys[37])
+    if (myGameArea.keys && myGameArea.keys[37] || (myGameArea.x && myGameArea.y && myGameArea.x < 600))
     {
       this.wheelBehind.angImp -= 0.1;
     }
