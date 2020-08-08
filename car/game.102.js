@@ -321,7 +321,7 @@ function terrain(arrY, dx)
       {
         ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 10;
-	      ctx.strokeStyle = '#117c13';
+	      ctx.strokeStyle = '#268b07';
       }
       ctx.lineTo(arrY.length* dx - this.scrollX, 1200 -this.scrollY);
       ctx.closePath();
