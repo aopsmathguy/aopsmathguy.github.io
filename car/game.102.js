@@ -328,22 +328,13 @@ function terrain(arrY, dx)
   this.intersection = function(wheel1){
 
     var flat = false;
+
+wheel1.contactPoints = 1;
     for (var i = 0 ; i < this.arrY.length - 1; i++)
     {
       var inter = wheel1.intersection(this.dx * i,this.arrY[i], this.dx*(i + 1), this.arrY[i+1]);
       if (inter)
       {
-        wheel1.contactPoints += 1;
-      }
-    }
-
-
-    for (var i = 0 ; i < this.arrY.length - 1; i++)
-    {
-      var inter = wheel1.intersection(this.dx * i,this.arrY[i], this.dx*(i + 1), this.arrY[i+1]);
-      if (inter)
-      {
-
         this.resolveIntersection(wheel1, Math.atan((this.arrY[i+1] - this.arrY[i])/(this.dx)),i);
         flat = true;
       }
