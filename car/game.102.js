@@ -2,12 +2,12 @@ var wheelBehind;
 var wheelAhead;
 var car1;
 var terrain;
-var gravity = 0.2;
+var gravity = 0.15;
 function startGame() {
-    wheelBehind = new wheel(601, 100,0, 25, "wheel.png",  "image");
-    wheelAhead = new wheel(599, 100,0, 25, "wheel.png",  "image");
-    car1 = new car(wheelAhead,wheelBehind, 70,50, "body.png","image");
-    terrain = new terrain([], 150);
+    wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
+    wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
+    car1 = new car(wheelAhead,wheelBehind, 40,25, "car-quadbike.png","image");
+    terrain = new terrain([], 75);
     terrain.createTerrain();
     myGameArea.start();
 }
@@ -96,7 +96,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       ctx.rotate(this.dir);
       ctx.fillStyle = this.color;
       if (this.type == "image")
-          ctx.drawImage(this.image, -121, -48, 263, 92);
+          ctx.drawImage(this.image, -64, -32, 128, 64);
       else
           ctx.fillRect(this.l1 / -1, 10 / -1, 2*this.l1, 2*10);
       ctx.restore();
@@ -320,7 +320,7 @@ function terrain(arrY, dx)
       for (var i = 0; i < arrY.length; i++)
       {
         ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 8;
 	      ctx.strokeStyle = '#268b07';
       }
       ctx.lineTo(arrY.length* dx - this.scrollX, 2000 -this.scrollY);
@@ -333,7 +333,7 @@ function terrain(arrY, dx)
     var temp = [200,250,300];
     for (var i = 3; i < 200; i++)
     {
-      temp.push(Math.random() *800+ 200);
+      temp.push(Math.random() *400+ 200);
     }
 
     this.arrY.push(temp[0]);
