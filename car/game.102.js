@@ -34,7 +34,9 @@ var myGameArea = {
         })
     },
     clear : function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle = "#87cefa";
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
 function impulses(impX, impY, impAng)
@@ -312,19 +314,23 @@ function terrain(arrY, dx)
   this.dx = dx;
   this.display = function(){
       ctx = myGameArea.context;
+      ctx.fillStyle = '#69512e';
       ctx.beginPath();
-      ctx.moveTo( - this.scrollX, arrY[0] -this.scrollY);
-      for (var i = 1; i < arrY.length; i++)
+      ctx.moveTo( - this.scrollX,1200 -this.scrollY);
+      for (var i = 0; i < arrY.length; i++)
       {
         ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
-        ctx.lineWidth = 5;
-	      ctx.strokeStyle = '#0000FF';
+        ctx.lineWidth = 10;
+	      ctx.strokeStyle = '#117c13';
       }
+      ctx.lineTo(arrY.length* dx - this.scrollX, 1200 -this.scrollY);
+      ctx.closePath();
+      ctx.fill();
       ctx.stroke();
   }
   this.createTerrain = function()
   {
-    var temp = [500,500];
+    var temp = [200,250];
     for (var i = 2; i < 200; i++)
     {
       temp.push(Math.random() *600+ 200);
@@ -342,8 +348,8 @@ function terrain(arrY, dx)
   }
   this.updateScroll = function()
   {
-    this.scrollX += (car1.x -300 - this.scrollX)/30;
-    this.scrollY += (car1.y -300- this.scrollY)/30;
+    this.scrollX += (car1.x -300 - this.scrollX)/20;
+    this.scrollY += (car1.y -300- this.scrollY)/20;
   }
   this.intersection = function(wheel1){
 
@@ -427,9 +433,11 @@ function updateGameArea() {
 
       car1.doForces();
       terrain.updateScroll();
-      car1.display();
+
+      terrain.display();
+
       wheelAhead.display();
       wheelBehind.display();
-      terrain.display();
+      car1.display();
       console.log(wheelAhead.contactPoints);
 }
