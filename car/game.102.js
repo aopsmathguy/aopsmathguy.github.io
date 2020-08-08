@@ -16,7 +16,7 @@ var myGameArea = {
     start : function() {
       //make the canvas and stuff.
         this.canvas.width = 1200;
-        this.canvas.height = 800;
+        this.canvas.height = 700;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 20);
@@ -316,40 +316,41 @@ function terrain(arrY, dx)
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
       ctx.beginPath();
-      ctx.moveTo( - this.scrollX,1200 -this.scrollY);
+      ctx.moveTo( - this.scrollX,2000 -this.scrollY);
       for (var i = 0; i < arrY.length; i++)
       {
         ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 10;
 	      ctx.strokeStyle = '#268b07';
       }
-      ctx.lineTo(arrY.length* dx - this.scrollX, 1200 -this.scrollY);
+      ctx.lineTo(arrY.length* dx - this.scrollX, 2000 -this.scrollY);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
   }
   this.createTerrain = function()
   {
-    var temp = [200,250];
-    for (var i = 2; i < 200; i++)
+    var temp = [200,250,300];
+    for (var i = 3; i < 200; i++)
     {
-      temp.push(Math.random() *600+ 200);
+      temp.push(Math.random() *800+ 200);
     }
 
     this.arrY.push(temp[0]);
     this.arrY.push(temp[1]);
-    for (var i = 2; i < 198; i++)
+    this.arrY.push(temp[2]);
+    for (var i = 3; i < 197; i++)
     {
-      this.arrY.push((temp[i-2]+4*temp[i-1] + 6*temp[i] + 4*temp[i+1] + temp[i+2])/16);
+      this.arrY.push((temp[i-3]+6*temp[i-2] + 15*temp[i-1]+ 20 * temp[i] + 15*temp[i+1] + 6*temp[i+2] + temp[i+3])/64);
     }
-
+    this.arrY.push(temp[198]);
     this.arrY.push(temp[199]);
     this.arrY.push(temp[200]);
   }
   this.updateScroll = function()
   {
     this.scrollX += (car1.x -300 - this.scrollX)/20;
-    this.scrollY += (car1.y -300- this.scrollY)/20;
+    this.scrollY += (car1.y -350- this.scrollY)/20;
   }
   this.intersection = function(wheel1){
 
