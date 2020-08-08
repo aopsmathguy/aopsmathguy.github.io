@@ -324,29 +324,21 @@ function terrain(arrY, dx)
   }
   this.createTerrain = function()
   {
-    var temp = [500,550];
-    for (var i = 1; i < 200; i++)
+    var temp = [500,500];
+    for (var i = 2; i < 200; i++)
     {
       temp.push(Math.random() *600+ 200);
     }
 
-    var temp2 = [];
-    temp2.push(temp[0]);
-    for (var i = 1; i < 199; i++)
-    {
-      temp2.push((temp[i-1] + temp[i] + temp[i+1])/3);
-    }
-    temp2.push(temp[200]);
-
-    this.arrY.push(temp2[0]);
-    this.arrY.push(temp2[1]);
+    this.arrY.push(temp[0]);
+    this.arrY.push(temp[1]);
     for (var i = 2; i < 198; i++)
     {
-      this.arrY.push((temp2[i-1] + temp2[i] + temp2[i+1])/3);
+      this.arrY.push((temp[i-2]+4*temp[i-1] + 6*temp[i] + 4*temp[i+1] + temp[i+2])/16);
     }
 
-    this.arrY.push(temp2[199]);
-    this.arrY.push(temp2[200]);
+    this.arrY.push(temp[199]);
+    this.arrY.push(temp[200]);
   }
   this.updateScroll = function()
   {
