@@ -2,12 +2,13 @@ var wheelBehind;
 var wheelAhead;
 var car1;
 var terrain;
-var gravity = 0.15;
+var gravity = 0.2;
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 25, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 25, "wheel.png",  "image");
     car1 = new car(wheelAhead,wheelBehind, 70,50, "body.png","image");
-    terrain = new terrain([200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250], 150);
+    terrain = new terrain([], 150);
+    terrain.createTerrain();
     myGameArea.start();
 }
 var myGameArea = {
@@ -19,6 +20,7 @@ var myGameArea = {
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 20);
+
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = true;
@@ -319,6 +321,32 @@ function terrain(arrY, dx)
 	      ctx.strokeStyle = '#0000FF';
       }
       ctx.stroke();
+  }
+  this.createTerrain = function()
+  {
+    var temp = [500,550];
+    for (var i = 1; i < 200; i++)
+    {
+      temp.push(Math.random() *600+ 200);
+    }
+
+    var temp2 = [];
+    temp2.push(temp[0]);
+    for (var i = 1; i < 199; i++)
+    {
+      temp2.push((temp[i-1] + temp[i] + temp[i+1])/3);
+    }
+    temp2.push(temp[200]);
+
+    this.arrY.push(temp2[0]);
+    this.arrY.push(temp2[1]);
+    for (var i = 2; i < 198; i++)
+    {
+      this.arrY.push((temp2[i-1] + temp2[i] + temp2[i+1])/3);
+    }
+
+    this.arrY.push(temp2[199]);
+    this.arrY.push(temp2[200]);
   }
   this.updateScroll = function()
   {
