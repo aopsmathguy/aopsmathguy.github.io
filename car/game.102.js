@@ -321,7 +321,7 @@ function terrain(arrY, dx)
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
-  this.difficulty = 150;
+  this.difficulty = 100;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
@@ -344,6 +344,8 @@ function terrain(arrY, dx)
     for (var i = 12; i < 200; i++)
     {
       temp.push((Math.random()-0.5) *this.difficulty+ 400);
+
+      this.difficulty+=1.5;
     }
 
     this.arrY.push(temp[0]);
