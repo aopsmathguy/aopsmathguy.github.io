@@ -212,7 +212,7 @@ function wheel(x, y, dir, r, color, type) {
     this.y = y;
     this.contactPoints = 0;
 
-    this.bouncy = 0.1;
+    this.bouncy = 0.2;
     this.sfriction = 2;
     this.kfriction = 1.6;
 
