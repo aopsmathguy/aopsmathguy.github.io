@@ -7,7 +7,7 @@ function startGame() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
     car1 = new car(wheelAhead,wheelBehind, 40,35, "Car.png","image");
-    terrain = new terrain([], 75);
+    terrain = new terrain([], 100);
     terrain.createTerrain();
     myGameArea.start();
 }
@@ -59,7 +59,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.l2 = l2;
   this.angleCOG = Math.atan(l2/l1);
   this.lengthCOG = Math.sqrt(l1 * l1 + l2 * l2);
-  this.kHorizontal = 0.5;
+  this.kHorizontal = 0.3;
   this.kVerticle = 0.12;
 
   this.springX = 0;
@@ -72,8 +72,10 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.springX1P = 0;
   this.springY1P = 0;
 
+  this.springDamp = 0.15;
+
   this.x = 320;
-  this.y = 100;
+  this.y = 300;
   this.xVel = 0;
   this.yVel = 0;
 
@@ -113,8 +115,8 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
     this.springX = carXRot - this.l1 - wheelXRot;
     this.springY = carYRot - this.l2 - wheelYRot;
 
-    var wheelxImpRot = this.springX * this.kHorizontal + 0.1*(this.springX - this.springXP);
-    var wheelyImpRot = this.springY * this.kVerticle+0.1*(this.springY - this.springYP);
+    var wheelxImpRot = this.springX * this.kHorizontal + this.springDamp*(this.springX - this.springXP);
+    var wheelyImpRot = this.springY * this.kVerticle+this.springDamp*(this.springY - this.springYP);
 
     this.springXP = this.springX;
     this.springYP = this.springY;
@@ -128,8 +130,8 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
     this.springX1 = carXRot + this.l1 - wheelXRot1;
     this.springY1 = carYRot - this.l2 - wheelYRot1;
 
-    var wheelxImpRot1 = this.springX1 * this.kHorizontal+ 0.1*(this.springX1 - this.springX1P);
-    var wheelyImpRot1 = this.springY1 * this.kVerticle+ 0.1*(this.springY1 - this.springY1P);
+    var wheelxImpRot1 = this.springX1 * this.kHorizontal+ this.springDamp*(this.springX1 - this.springX1P);
+    var wheelyImpRot1 = this.springY1 * this.kVerticle+ this.springDamp*(this.springY1 - this.springY1P);
 
     this.springX1P = this.springX1;
     this.springY1P = this.springY1;
@@ -330,8 +332,8 @@ function terrain(arrY, dx)
   }
   this.createTerrain = function()
   {
-    var temp = [200,250,300];
-    for (var i = 3; i < 200; i++)
+    var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
+    for (var i = 12; i < 200; i++)
     {
       temp.push(Math.random() *400+ 200);
     }
