@@ -6,7 +6,7 @@ var gravity = 0.15;
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
-    car1 = new car(wheelAhead,wheelBehind, 40,25, "car-quadbike.png","image");
+    car1 = new car(wheelAhead,wheelBehind, 40,35, "Car.png","image");
     terrain = new terrain([], 75);
     terrain.createTerrain();
     myGameArea.start();
