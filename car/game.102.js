@@ -32,6 +32,13 @@ var myGameArea = {
           myGameArea.x = e.touches[0].screenX;
           myGameArea.y = e.touches[0].screenY;
         })
+
+        window.addEventListener("keydown", function(e) {
+    // space, page up, page down and arrow keys:
+    if([32, 33, 34, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+}, false);
     },
     clear : function() {
       this.context.fillStyle = "#87cefa";
@@ -314,6 +321,7 @@ function terrain(arrY, dx)
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
+  this.difficulty = 150;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
@@ -335,7 +343,7 @@ function terrain(arrY, dx)
     var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
     for (var i = 12; i < 200; i++)
     {
-      temp.push(Math.random() *400+ 200);
+      temp.push((Math.random()-0.5) *this.difficulty+ 400);
     }
 
     this.arrY.push(temp[0]);
