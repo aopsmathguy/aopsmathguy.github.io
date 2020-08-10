@@ -6,7 +6,7 @@ var gravity = 0.15;
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
-    car1 = new car(wheelAhead,wheelBehind, 40,35, "Car.png","image");
+    car1 = new car(wheelAhead,wheelBehind, 40,15, "Car.png","image");
     terrain = new terrain([], 100);
     terrain.createTerrain();
     myGameArea.start();
@@ -82,7 +82,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.springDamp = 0.15;
 
   this.x = 320;
-  this.y = 300;
+  this.y = 340;
   this.xVel = 0;
   this.yVel = 0;
 
@@ -105,7 +105,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       ctx.rotate(this.dir);
       ctx.fillStyle = this.color;
       if (this.type == "image")
-          ctx.drawImage(this.image, -64, -32, 128, 64);
+          ctx.drawImage(this.image, -64, -52, 128, 64);
       else
           ctx.fillRect(this.l1 / -1, 10 / -1, 2*this.l1, 2*10);
       ctx.restore();
@@ -152,7 +152,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
     this.xImp = carXImpRot * Math.cos(this.dir) + carYImpRot * Math.sin(this.dir);
     this.yImp = -carYImpRot * Math.cos(this.dir) + carXImpRot * Math.sin(this.dir);
 
-    this.angImp = this.l1 * (wheelyImpRot1 - wheelyImpRot)/(1/3 * this.mass *this.l1 * this.l1);
+    this.angImp = this.lengthCOG * ((wheelyImpRot1*Math.cos(this.angleCOG) + wheelxImpRot1*Math.sin(this.angleCOG))-(wheelyImpRot*Math.cos(this.angleCOG) - wheelxImpRot*Math.sin(this.angleCOG)))/(1/3 * this.mass *this.l1 * this.l1);
 
   }
   this.doForces = function()
@@ -367,7 +367,7 @@ function terrain(arrY, dx)
     {
       temp.push((Math.random()-0.5) *this.difficulty+ 400);
 
-      this.difficulty+=1.5;
+      this.difficulty+=1;
     }
 
     this.arrY.push(temp[0]);
