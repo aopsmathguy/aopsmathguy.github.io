@@ -176,6 +176,12 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       this.wheelBehind.angImp -= 0.1;
     }
   }
+  this.dead = function()
+  {
+    var x = this.x + 50 * Math.sin(this.dir);
+    var y = this.y - 50 * Math.cos(this.dir);
+    return terrain.point(x,y);
+  }
   /*this.setWheels = function()
   {
     this.wheelAhead.x = this.x - this.l2 * Math.sin(this.dir) + this.l1 * Math.cos(this.dir);
@@ -338,6 +344,22 @@ function terrain(arrY, dx)
       ctx.fill();
       ctx.stroke();
   }
+  this.point = function(x,y)
+  {
+    for (var i = 0 ; i < this.arrY.length - 1; i++)
+    {
+      var y1 = this.arrY[i];
+      var x1 = i * this.dx;
+      var y2 = this.arrY[i+1];
+      var x2 = (i+1) * this.dx;
+      var area = (x1*y2 + x2*y + x * y1 - x1 * y - x2 * y1 - x * y2)/2;
+      if (area > 0 && x1 < x && x < x2)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
   this.createTerrain = function()
   {
     var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
@@ -429,9 +451,10 @@ wheel1.contactPoints = 1;
     wheel1.y = py - wheel1.r * Math.cos(ang);
     wheel1.calculateImpulse(ang);
   }
-
 }
 function updateGameArea() {
+    if (!car1.dead())
+    {
       myGameArea.clear();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
@@ -452,5 +475,5 @@ function updateGameArea() {
       wheelAhead.display();
       wheelBehind.display();
       car1.display();
-      console.log(wheelAhead.contactPoints);
+    }
 }
