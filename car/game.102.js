@@ -6,7 +6,7 @@ var gravity = 0.15;
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
-    car1 = new car(wheelAhead,wheelBehind, 40,15, "Car.png","image");
+    car1 = new car(wheelAhead,wheelBehind, 40,25, "Car.png","image");
     terrain = new terrain([], 100);
     terrain.createTerrain();
     myGameArea.start();
@@ -105,7 +105,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       ctx.rotate(this.dir);
       ctx.fillStyle = this.color;
       if (this.type == "image")
-          ctx.drawImage(this.image, -64, -52, 128, 64);
+          ctx.drawImage(this.image, -64, -42, 128, 64);
       else
           ctx.fillRect(this.l1 / -1, 10 / -1, 2*this.l1, 2*10);
       ctx.restore();
