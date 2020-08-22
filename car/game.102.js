@@ -323,23 +323,27 @@ function wheel(x, y, dir, r, color, type) {
 }
 function terrain(arrY, dx)
 {
+  this.maxY = 0;
   this.scrollX = 0;
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
+  this.y = 400;
+  this.dy = 0;
+  this.ddy = 0;
   this.difficulty = 100;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
       ctx.beginPath();
-      ctx.moveTo( - this.scrollX,2000 -this.scrollY);
+      ctx.moveTo( - this.scrollX,this.maxY + 2000 -this.scrollY);
       for (var i = 0; i < arrY.length; i++)
       {
         ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 8;
 	      ctx.strokeStyle = '#268b07';
       }
-      ctx.lineTo(arrY.length* dx - this.scrollX, 2000 -this.scrollY);
+      ctx.lineTo(arrY.length* dx - this.scrollX, this.maxY + 2000 -this.scrollY);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -362,7 +366,19 @@ function terrain(arrY, dx)
   }
   this.createTerrain = function()
   {
-    var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
+    for (var i =0; i<12;i++)
+    {
+      this.arrY[i] = 400;
+    }
+    for (var i = 12; i <200; i++)
+    {
+      this.ddy += 20*(Math.random()-0.5)-this.dy/5 - this.ddy/10;
+      this.dy+=this.ddy;
+      this.y+=this.dy;
+      this.arrY[i] = this.y;
+      this.maxY = Math.max(this.maxY, this.y);
+    }
+    /*var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
     for (var i = 12; i < 200; i++)
     {
       temp.push((Math.random()-0.5) *this.difficulty+ 400);
@@ -379,7 +395,7 @@ function terrain(arrY, dx)
     }
     this.arrY.push(temp[198]);
     this.arrY.push(temp[199]);
-    this.arrY.push(temp[200]);
+    this.arrY.push(temp[200]);*/
   }
   this.updateScroll = function()
   {
