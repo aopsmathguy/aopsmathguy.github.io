@@ -8,7 +8,7 @@ function startGame() {
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
     car1 = new car(wheelAhead,wheelBehind, 40,25, "Car.png","image");
     terrain = new terrain([], 100);
-    terrain.createTerrain();
+    terrain.createInitialTerrain();
     myGameArea.start();
 }
 var myGameArea = {
@@ -332,30 +332,36 @@ function terrain(arrY, dx)
   this.dy = 0;
   this.ddy = 0;
   this.difficulty = 100;
+  this.startOffset = 0;
+  this.startInd = 0;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
       ctx.beginPath();
-      ctx.moveTo( - this.scrollX,this.maxY + 2000 -this.scrollY);
-      for (var i = 0; i < arrY.length; i++)
+      ctx.moveTo( this.startOffset * this.dx- this.scrollX,this.maxY + 2000 -this.scrollY);
+      for (var i = this.startInd; i < arrY.length; i++)
       {
-        ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
+        ctx.lineTo((i+this.startOffset) * this.dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 8;
 	      ctx.strokeStyle = '#268b07';
       }
-      ctx.lineTo(arrY.length* dx - this.scrollX, this.maxY + 2000 -this.scrollY);
+      ctx.lineTo((arrY.length+this.startOffset)* this.dx - this.scrollX, this.maxY + 2000 -this.scrollY);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
   }
+  this.updateStartInd = function()
+  {
+    this.startInd = Math.floor(this.scrollX/this.dx -  this.startOffset) - 1;
+  }
   this.point = function(x,y)
   {
-    for (var i = 0 ; i < this.arrY.length - 1; i++)
+    for (var i = this.startInd ; i < this.arrY.length - 1; i++)
     {
       var y1 = this.arrY[i];
-      var x1 = i * this.dx;
+      var x1 = (i+this.startOffset) * this.dx;
       var y2 = this.arrY[i+1];
-      var x2 = (i+1) * this.dx;
+      var x2 = (i+1+this.startOffset) * this.dx;
       var area = (x1*y2 + x2*y + x * y1 - x1 * y - x2 * y1 - x * y2)/2;
       if (area > 0 && x1 < x && x < x2)
       {
@@ -364,20 +370,20 @@ function terrain(arrY, dx)
     }
     return false;
   }
-  this.createTerrain = function()
+  this.createInitialTerrain = function()
   {
     for (var i =0; i<12;i++)
     {
       this.arrY[i] = 400;
     }
-    for (var i = 12; i <200; i++)
+    /*for (var i = 12; i <200; i++)
     {
       this.ddy += 20*(Math.random()-0.5)-this.dy/5 - this.ddy/10;
       this.dy+=this.ddy;
       this.y+=this.dy;
       this.arrY[i] = this.y;
       this.maxY = Math.max(this.maxY, this.y);
-    }
+    }*/
     /*var temp = [400,400,400,400,400,400,400,400,400,400,400,400];
     for (var i = 12; i < 200; i++)
     {
@@ -397,6 +403,18 @@ function terrain(arrY, dx)
     this.arrY.push(temp[199]);
     this.arrY.push(temp[200]);*/
   }
+  this.makeNewTerrain = function()
+  {
+    while ((this.arrY.length + this.startOffset - 2)*this.dx- this.scrollX < 1200)
+    {
+      this.ddy += 20*(Math.random()-0.5)-this.dy/5 - this.ddy/10;
+      this.dy+=this.ddy;
+      this.y+=this.dy;
+      this.arrY[this.arrY.length] = this.y;
+      this.maxY = Math.max(this.maxY, this.y);
+    }
+  }
+
   this.updateScroll = function()
   {
     this.scrollX += (car1.x -300 - this.scrollX)/20;
@@ -407,9 +425,9 @@ function terrain(arrY, dx)
     var flat = false;
 
 wheel1.contactPoints = 1;
-    for (var i = 0 ; i < this.arrY.length - 1; i++)
+    for (var i = this.startInd; i < this.arrY.length - 1; i++)
     {
-      var inter = wheel1.intersection(this.dx * i,this.arrY[i], this.dx*(i + 1), this.arrY[i+1]);
+      var inter = wheel1.intersection(this.dx * (i+this.startOffset),this.arrY[i], this.dx*(i + 1+this.startOffset), this.arrY[i+1]);
       if (inter)
       {
         this.resolveIntersection(wheel1, Math.atan((this.arrY[i+1] - this.arrY[i])/(this.dx)),i);
@@ -420,9 +438,9 @@ wheel1.contactPoints = 1;
     if (!flat)
     {
       wheel1.contactPoints = 1;
-      for (var i = 0; i < this.arrY.length; i++)
+      for (var i = this.startInd; i < this.arrY.length; i++)
       {
-        var inter = wheel1.intersectPoint(this.dx * i,this.arrY[i]);
+        var inter = wheel1.intersectPoint(this.dx * (i+this.startOffset),this.arrY[i]);
         if (inter)
         {
           this.resolvePoint(wheel1, i);
@@ -432,7 +450,7 @@ wheel1.contactPoints = 1;
   }
   this.resolvePoint = function(wheel1, i)
   {
-    var x = this.dx * i;
+    var x = this.dx * (i+this.startOffset);
     var y = this.arrY[i];
     var dist = Math.sqrt((wheel1.x - x) * (wheel1.x - x) + (wheel1.y - y) * (wheel1.y - y) );
     var dx = wheel1.r / dist * (wheel1.x - x);
@@ -443,8 +461,8 @@ wheel1.contactPoints = 1;
   }
   this.resolveIntersection = function(wheel1, ang, i)
   {
-    var x1 = this.dx * i;
-    var x2 = this.dx * (i+1);
+    var x1 = this.dx * (i+this.startOffset);
+    var x2 = this.dx * (i+1+this.startOffset);
     var y1 = this.arrY[i];
     var y2 = this.arrY[i+1];
 
@@ -472,6 +490,8 @@ function updateGameArea() {
     if (!car1.dead())
     {
       myGameArea.clear();
+      terrain.updateStartInd();
+      terrain.makeNewTerrain();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
       car1.springForcesAll();
