@@ -3,6 +3,25 @@ var wheelAhead;
 var car1;
 var terrain;
 var gravity = 0.15;
+function reset() {
+  ctx = myGameArea.context;
+  ctx.font = "50px Arial";
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1;
+  ctx.fillText("Press Space to Play Again", 350, 350);
+  ctx.strokeText("Press Space to Play Again", 350, 350);
+  if (myGameArea.keys[32])
+  {
+    wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
+    wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
+    car1 = new car(wheelAhead,wheelBehind, 40,25, "Car.png","image");
+    terrain = new terrain([], 100);
+    terrain.createInitialTerrain();
+    terrain.scrollX = 0;
+    terrain.scrollY = 0;
+  }
+}
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
@@ -81,8 +100,8 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
 
   this.springDamp = 0.15;
 
-  this.x = 320;
-  this.y = 340;
+  this.x = 350;
+  this.y = 350;
   this.xVel = 0;
   this.yVel = 0;
 
@@ -109,6 +128,15 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       else
           ctx.fillRect(this.l1 / -1, 10 / -1, 2*this.l1, 2*10);
       ctx.restore();
+  }
+  this.displayScore = function(){
+     ctx = myGameArea.context;
+     ctx.font = "50px Arial";
+     ctx.fillStyle = '#FFFFFF';
+     ctx.strokeStyle = '#000000';
+     ctx.lineWidth = 1;
+     ctx.fillText("Score: " + Math.floor((this.x-350)/100), 10, 50);
+     ctx.strokeText("Score: " + Math.floor((this.x-350)/100), 10, 50);
   }
   this.springForcesAll  = function()
   {
@@ -507,9 +535,12 @@ function updateGameArea() {
       terrain.updateScroll();
 
       terrain.display();
-
+      car1.displayScore();
       wheelAhead.display();
       wheelBehind.display();
       car1.display();
+    }
+    else {
+      reset();
     }
 }
