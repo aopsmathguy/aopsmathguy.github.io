@@ -16,10 +16,6 @@ function reset() {
     wheelBehind = new wheel(601, 100,0, 16, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 16, "wheel.png",  "image");
     car1 = new car(wheelAhead,wheelBehind, 40,25, "Car.png","image");
-    terrain = new terrain([], 100);
-    terrain.createInitialTerrain();
-    terrain.scrollX = 0;
-    terrain.scrollY = 0;
   }
 }
 function startGame() {
@@ -361,13 +357,16 @@ function terrain(arrY, dx)
   this.ddy = 0;
   this.difficulty = 100;
   this.startOffset = 0;
-  this.startInd = 0;
+  this.startRender = 0;
+  this.endRender = 0;
+  this.startIntersect = 0;
+  this.endIntersect = 0;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.fillStyle = '#69512e';
       ctx.beginPath();
       ctx.moveTo( this.startOffset * this.dx- this.scrollX,this.maxY + 2000 -this.scrollY);
-      for (var i = this.startInd; i < arrY.length; i++)
+      for (var i = this.startRender; i < this.endRender; i++)
       {
         ctx.lineTo((i+this.startOffset) * this.dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 8;
@@ -378,13 +377,16 @@ function terrain(arrY, dx)
       ctx.fill();
       ctx.stroke();
   }
-  this.updateStartInd = function()
+  this.updatestartRender = function()
   {
-    this.startInd = Math.floor(this.scrollX/this.dx -  this.startOffset) - 1;
+    this.startRender = Math.floor(this.scrollX/this.dx -  this.startOffset) - 1;
+    this.endRender = Math.floor((1200 +this.scrollX)/this.dx -  this.startOffset) + 3;
+    this.startIntersect = Math.floor(car1.x/this.dx -  this.startOffset) - 3;
+    this.endIntersect = Math.floor(car1.x/this.dx -  this.startOffset) +4;
   }
   this.point = function(x,y)
   {
-    for (var i = this.startInd ; i < this.arrY.length - 1; i++)
+    for (var i = this.startIntersect ; i < this.endIntersect; i++)
     {
       var y1 = this.arrY[i];
       var x1 = (i+this.startOffset) * this.dx;
@@ -452,8 +454,8 @@ function terrain(arrY, dx)
 
     var flat = false;
 
-wheel1.contactPoints = 1;
-    for (var i = this.startInd; i < this.arrY.length - 1; i++)
+    wheel1.contactPoints = 1;
+    for (var i = this.startIntersect; i < this.endIntersect; i++)
     {
       var inter = wheel1.intersection(this.dx * (i+this.startOffset),this.arrY[i], this.dx*(i + 1+this.startOffset), this.arrY[i+1]);
       if (inter)
@@ -466,7 +468,7 @@ wheel1.contactPoints = 1;
     if (!flat)
     {
       wheel1.contactPoints = 1;
-      for (var i = this.startInd; i < this.arrY.length; i++)
+      for (var i = this.startIntersect; i < this.endIntersect; i++)
       {
         var inter = wheel1.intersectPoint(this.dx * (i+this.startOffset),this.arrY[i]);
         if (inter)
@@ -518,7 +520,7 @@ function updateGameArea() {
     if (!car1.dead())
     {
       myGameArea.clear();
-      terrain.updateStartInd();
+      terrain.updatestartRender();
       terrain.makeNewTerrain();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
