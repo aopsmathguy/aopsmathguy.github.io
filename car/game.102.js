@@ -109,7 +109,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
 
   this.xImp = 0;
   this.yImp = 0;
-
+  this.score =0;
   this.dir = 0;
   this.angVel = 0;
   this.angImp = 0;
@@ -126,13 +126,15 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
       ctx.restore();
   }
   this.displayScore = function(){
+    this.score = Math.floor((this.x-350)/100);
+
      ctx = myGameArea.context;
      ctx.font = "50px Arial";
      ctx.fillStyle = '#FFFFFF';
      ctx.strokeStyle = '#000000';
      ctx.lineWidth = 1;
-     ctx.fillText("Score: " + Math.floor((this.x-350)/100), 10, 50);
-     ctx.strokeText("Score: " + Math.floor((this.x-350)/100), 10, 50);
+     ctx.fillText("Score: " + this.score, 10, 50);
+     ctx.strokeText("Score: " + this.score, 10, 50);
   }
   this.springForcesAll  = function()
   {
@@ -355,7 +357,7 @@ function terrain(arrY, dx)
   this.y = 400;
   this.dy = 0;
   this.ddy = 0;
-  this.difficulty = 100;
+  this.difficulty = 1;
   this.startOffset = 0;
   this.startRender = 0;
   this.endRender = 0;
@@ -437,14 +439,17 @@ function terrain(arrY, dx)
   {
     while ((this.arrY.length + this.startOffset - 2)*this.dx- this.scrollX < 1200)
     {
-      this.ddy += 20*(Math.random()-0.5)-this.dy/5 - this.ddy/10;
+      this.ddy += this.difficulty*(20*(Math.random()-0.5)-this.dy/5 - this.ddy/10);
       this.dy+=this.ddy;
       this.y+=this.dy;
       this.arrY[this.arrY.length] = this.y;
       this.maxY = Math.max(this.maxY, this.y);
     }
   }
-
+  this.setDifficulty = function()
+  {
+    this.difficulty = 0.5+2*car1.score/(500+car1.score);
+  }
   this.updateScroll = function()
   {
     this.scrollX += (car1.x -300 - this.scrollX)/20;
@@ -517,10 +522,12 @@ function terrain(arrY, dx)
   }
 }
 function updateGameArea() {
+    myGameArea.clear();
     if (!car1.dead())
     {
-      myGameArea.clear();
+
       terrain.updatestartRender();
+      terrain.setDifficulty();
       terrain.makeNewTerrain();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
@@ -541,8 +548,15 @@ function updateGameArea() {
       wheelAhead.display();
       wheelBehind.display();
       car1.display();
+      console.log(terrain.difficulty);
     }
-    else {
+    terrain.display();
+    car1.displayScore();
+    wheelAhead.display();
+    wheelBehind.display();
+    car1.display();
+    if (car1.dead())
+    {
       reset();
     }
 }
