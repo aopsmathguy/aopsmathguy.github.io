@@ -379,10 +379,13 @@ function terrain(arrY, dx)
       ctx.fill();
       ctx.stroke();
   }
-  this.updatestartRender = function()
+  this.updateRenderBounds = function()
   {
     this.startRender = Math.floor(this.scrollX/this.dx -  this.startOffset) - 1;
     this.endRender = Math.floor((1200 +this.scrollX)/this.dx -  this.startOffset) + 3;
+  }
+  this.updateCollisionBounds = function()
+  {
     this.startIntersect = Math.floor(car1.x/this.dx -  this.startOffset) - 3;
     this.endIntersect = Math.floor(car1.x/this.dx -  this.startOffset) +4;
   }
@@ -529,6 +532,9 @@ function updateGameArea() {
       terrain.makeNewTerrain();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
+
+      terrain.updateCollisionBounds();
+
       car1.springForcesAll();
       terrain.intersection(wheelAhead);
       terrain.intersection(wheelBehind);
@@ -539,8 +545,10 @@ function updateGameArea() {
       wheelBehind.doforces();
 
       car1.doForces();
+
       terrain.updateScroll();
-      terrain.updatestartRender();
+      terrain.updateRenderBounds();
+
       terrain.display();
       car1.displayScore();
       wheelAhead.display();
