@@ -442,7 +442,7 @@ function terrain(arrY, dx)
   {
     while ((this.arrY.length + this.startOffset - 2)*this.dx- this.scrollX < 1200)
     {
-      this.ddy += this.difficulty*(20*(Math.random()-0.5)-this.dy/5 - this.ddy/10);
+      this.ddy += 20*(Math.random()-0.5)-(this.dy/5 + this.ddy/10)/this.difficulty;
       this.dy+=this.ddy;
       this.y+=this.dy;
       this.arrY[this.arrY.length] = this.y;
