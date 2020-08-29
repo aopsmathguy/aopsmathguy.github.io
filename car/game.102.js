@@ -525,8 +525,6 @@ function updateGameArea() {
     myGameArea.clear();
     if (!car1.dead())
     {
-
-      terrain.updatestartRender();
       terrain.setDifficulty();
       terrain.makeNewTerrain();
       car1.wheelAhead.resetImp();
@@ -542,13 +540,12 @@ function updateGameArea() {
 
       car1.doForces();
       terrain.updateScroll();
-
+      terrain.updatestartRender();
       terrain.display();
       car1.displayScore();
       wheelAhead.display();
       wheelBehind.display();
       car1.display();
-      console.log(terrain.difficulty);
     }
     terrain.display();
     car1.displayScore();
