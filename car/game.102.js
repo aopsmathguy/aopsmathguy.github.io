@@ -349,6 +349,12 @@ function wheel(x, y, dir, r, color, type) {
 }
 function terrain(arrY, dx)
 {
+  this.trees = [0];
+
+  this.image = new Image();
+  this.image.src = "grass.png";
+  this.color = "grass.png";
+
   this.maxY = 0;
   this.scrollX = 0;
   this.scrollY = 0;
@@ -359,12 +365,26 @@ function terrain(arrY, dx)
   this.ddy = 0;
   this.difficulty = 1;
   this.startOffset = 0;
+
   this.startRender = 0;
   this.endRender = 0;
+
   this.startIntersect = 0;
   this.endIntersect = 0;
   this.display = function(){
-      ctx = myGameArea.context;
+    ctx = myGameArea.context;
+    for (var i = Math.max(this.endTrees - Math.floor(1200/this.dx) -2,0);i < this.endTrees; i++)
+    {
+      ctx.save();
+      ctx.translate(dx*this.trees[i] -this.scrollX, this.arrY[this.trees[i]] -this.scrollY)
+      ctx.rotate((Math.atan((this.arrY[this.trees[i]+1] - this.arrY[this.trees[i]])/this.dx) +
+    Math.atan((this.arrY[this.trees[i]] - this.arrY[this.trees[i]-1])/this.dx))/2);
+      ctx.fillStyle = this.color;
+      ctx.drawImage(this.image, 25 / -1, -50, 50, 50);
+      ctx.restore();
+    }
+
+
       ctx.fillStyle = '#69512e';
       ctx.beginPath();
       ctx.moveTo( this.startOffset * this.dx- this.scrollX,this.maxY + 2000 -this.scrollY);
@@ -378,11 +398,29 @@ function terrain(arrY, dx)
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
+
+
   }
   this.updateRenderBounds = function()
   {
     this.startRender = Math.floor(this.scrollX/this.dx -  this.startOffset) - 1;
     this.endRender = Math.floor((1200 +this.scrollX)/this.dx -  this.startOffset) + 3;
+    this.endTrees = this.binarySearchLast(0, this.trees.length -1, 1200 +this.scrollX) + 1;
+  }
+  this.binarySearchLast = function(low,high,endX)
+  {
+    if (high - low ==1)
+    {
+      return high;
+    }
+    var mid = Math.floor((low + high)/2);
+    if (this.trees[mid]* this.dx > endX)
+    {
+      return this.binarySearchLast(low, mid, endX);
+    }
+    else {
+      return this.binarySearchLast(mid, high, endX);
+    }
   }
   this.updateCollisionBounds = function()
   {
@@ -447,6 +485,10 @@ function terrain(arrY, dx)
       this.y+=this.dy;
       this.arrY[this.arrY.length] = this.y;
       this.maxY = Math.max(this.maxY, this.y);
+    }
+    while ((this.trees[this.trees.length -1] - 2)*this.dx- this.scrollX < 1200)
+    {
+      this.trees[this.trees.length] = this.trees[this.trees.length -1] + Math.ceil(5*Math.random());
     }
   }
   this.setDifficulty = function()
