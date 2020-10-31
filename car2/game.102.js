@@ -41,22 +41,30 @@ var myGameArea = {
 }
 function makeCarTerrain()
 {
-  var points = [new Point(310,350,310,350,6),new Point(390,350,390,350,6)];
-  var wheels = [new Wheel(270,390,270,390,1,30,0,0,2,1.6,0.1),new Wheel(430,390,430,390,1,30,0,0,2,1.6,0.1)];;
+  var points = [new Point(310,350,310,350,6,0.1,0.05,0.2),new Point(390,350,390,350,6,0.1,0.05,0.2)];
+  var wheels = [new Wheel(270,390,270,390,1,25,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,25,0,0,1,0.8,0.1)];;
   car1 = new Car(points, wheels);
   terrain = new Terrain1([],100);
+  var thing = [500];
   for (var i =0; i <200; i++)
   {
-    terrain.arrY[i] = 1000+(300+i)*Math.sin(i/3);
+    thing[i] = 500+300*Math.random();
+  }
+  for (var i = 1; i< 200;i++)
+  {
+    terrain.arrY[i] =(6*thing[i] + 4*thing[i-1]+4*thing[i+1]+thing[i-2]+thing[i+2])/16;
   }
 }
-var Point = function(x,y,oldX,oldY,mass)
+var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
 {
   this.x = x;
   this.y = y;
   this.oldX = oldX;
   this.oldY = oldY;
   this.mass = mass;
+  this.sFriction = sFriction;
+  this.kFriction = kFriction;
+  this.bouncy = bouncy;
   this.doStep = function()
   {
     var temp = this.x;
@@ -66,8 +74,75 @@ var Point = function(x,y,oldX,oldY,mass)
     temp = this.y;
     this.y = 2*this.y - this.oldY + 0.3;
     this.oldY = temp;
+  }
+  this.intersectionCheck = function(x1,y1,x2,y2)
+  {
+    var ang = Math.atan((y2-y1)/(x2-x1));
+    var pointRot = (new Vector(this.x,this.y)).rotate(-ang);
+    var pointRot1 = (new Vector(x1,y1)).rotate(-ang);
+    var pointRot2 = (new Vector(x2,y2)).rotate(-ang);
+    return (pointRot.x > pointRot1.x && pointRot.x < pointRot2.x && pointRot.y >= pointRot1.y);
+  }
+  this.intersectionResolve = function(x1,y1,x2,y2)
+  {
+    var ang = Math.atan((y2-y1)/(x2-x1));
+    var pointRot = (new Vector(this.x,this.y)).rotate(-ang);
+    var pointRot1 = (new Vector(x1,y1)).rotate(-ang);
+    var pointRot2 = (new Vector(x2,y2)).rotate(-ang);
 
-    this.ang += this.angVel;
+    var xVel = this.x - this.oldX;
+    var yVel = this.y - this.oldY;
+
+    var velRot = (new Vector(xVel,yVel)).rotate(-ang);
+    var yImpRot = -velRot.y*(1+this.bouncy);
+    var xImpRot;
+    if (Math.abs(yImpRot*this.sFriction) > Math.abs(velRot.x))
+    {
+      xImpRot = - velRot.x;
+    }
+    else {
+      if (velRot.x>0)
+      {
+        xImpRot = -Math.abs(yImpRot*this.kFriction);
+      }
+      else {
+        xImpRot = Math.abs(yImpRot*this.kFriction);
+      }
+    }
+    var newVel = (new Vector(xVel+xImpRot,yVel+yImpRot)).rotate(ang);
+    this.pointBackOut(x1,y1,x2,y2);
+    this.oldX = this.x - newVel.x;
+    this.oldY = this.y - newVel.y;
+  }
+  this.pointBackOut = function(x1,y1,x2,y2)
+  {
+    var e1x = x2 - x1;
+    var e1y = y2 - y1;
+    var area = e1x * e1x + e1y * e1y;
+    var e2x = this.x - x1;
+    var e2y = this.y - y1;
+    var val = e1x * e2x + e1y * e2y;
+
+    var lenE1 = Math.sqrt(e1x * e1x + e1y * e1y);
+    var lenE2 = Math.sqrt(e2x * e2x + e2y * e2y);
+    var cos = val/(lenE1 * lenE2);
+
+    var projLen = cos * lenE2;
+    var px = x1 + (projLen * e1x)/lenE1;
+    var py = y1 + (projLen * e1y)/lenE1;
+
+    this.x = px;
+    this.y = py;
+  }
+  this.pointIntersection = function()
+  {
+    for (var i = 0 ; i < terrain.arrY.length - 1; i++)
+    {
+      if (this.intersectionCheck(i*terrain.dx, terrain.arrY[i],(i+1)*terrain.dx, terrain.arrY[i+1]))
+      {
+        this.intersectionResolve(i*terrain.dx, terrain.arrY[i],(i+1)*terrain.dx, terrain.arrY[i+1]);
+      }
+    }
   }
 }
 var Wheel = function(x,y,oldX,oldY,mass,r,ang,angVel,sFriction, kFriction, bouncy)
@@ -246,6 +321,8 @@ var Car = function(points, wheels)
   {
     wheels[0].wheelIntersection();
     wheels[1].wheelIntersection();
+    points[0].pointIntersection();
+    points[1].pointIntersection();
   }
   this.constrain = function(point1, point2, targetDist)
   {
