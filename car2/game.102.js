@@ -81,7 +81,7 @@ var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
     var pointRot = (new Vector(this.x,this.y)).rotate(-ang);
     var pointRot1 = (new Vector(x1,y1)).rotate(-ang);
     var pointRot2 = (new Vector(x2,y2)).rotate(-ang);
-    return (pointRot.x > pointRot1.x && pointRot.x < pointRot2.x && pointRot.y >= pointRot1.y);
+    return (this.x >= x1 && this.x <= x2 && pointRot.y >= pointRot1.y);
   }
   this.intersectionResolve = function(x1,y1,x2,y2)
   {
