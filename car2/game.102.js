@@ -42,7 +42,7 @@ var myGameArea = {
 function makeCarTerrain()
 {
   var points = [new Point(310,350,310,350,6,0.6,0.4,0.2),new Point(390,350,390,350,6,0.6,0.4,0.2)];
-  var wheels = [new Wheel(270,390,270,390,1,25,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,25,0,0,1,0.8,0.1)];;
+  var wheels = [new Wheel(270,390,270,390,1,33,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,33,0,0,1,0.8,0.1)];;
   car1 = new Car(points, wheels);
   terrain = new Terrain1([],100);
   var thing = [500];
@@ -295,19 +295,39 @@ var Wheel = function(x,y,oldX,oldY,mass,r,ang,angVel,sFriction, kFriction, bounc
 }
 var Car = function(points, wheels)
 {
+  this.image = new Image();
+  this.image.src = "bike-motocross.png";
+
   this.points = points;
   this.wheels = wheels;
   this.display = function()
   {
-    ctx = myGameArea.context;
+    /*ctx = myGameArea.context;
     ctx.beginPath();
     ctx.moveTo(wheels[0].x-terrain.scrollX,wheels[0].y-terrain.scrollY);
     ctx.lineTo(points[0].x-terrain.scrollX,points[0].y-terrain.scrollY);
     ctx.lineTo(points[1].x-terrain.scrollX,points[1].y-terrain.scrollY);
     ctx.lineTo(wheels[1].x-terrain.scrollX,wheels[1].y-terrain.scrollY);
     ctx.stroke();
+    */
     wheels[0].display();
     wheels[1].display();
+
+    var centerX = (this.points[0].x+this.points[1].x)/2;
+    var centerY = (this.points[0].y+this.points[1].y)/2;
+    var ang;
+    if ((this.points[0].x-this.points[1].x)<0)
+      ang = Math.atan((this.points[0].y-this.points[1].y)/(this.points[0].x-this.points[1].x));
+    else
+      ang = Math.PI + Math.atan((this.points[0].y-this.points[1].y)/(this.points[0].x-this.points[1].x));
+
+    ctx = myGameArea.context;
+    ctx.save();
+    ctx.translate(centerX -terrain.scrollX, centerY-terrain.scrollY )
+    ctx.rotate(ang);
+    ctx.fillStyle = "bike-motocross.png";
+    ctx.drawImage(this.image, -105 , -65, 210, 105);
+    ctx.restore();
   }
   this.doStep = function()
   {
@@ -371,12 +391,18 @@ var Terrain1 = function(arrY, dx)
   this.display = function()
   {
     ctx = myGameArea.context;
+    ctx.fillStyle = '#69512e';
     ctx.beginPath();
-    ctx.moveTo(-this.scrollX,this.arrY[0]-this.scrollY);
-    for (var i = 1 ; i< this.arrY.length; i++)
+    ctx.moveTo( - this.scrollX,2000 -this.scrollY);
+    for (var i = 0; i < this.arrY.length; i++)
     {
-      ctx.lineTo(i*this.dx-this.scrollX, this.arrY[i]-this.scrollY);
+      ctx.lineTo((i) * this.dx - this.scrollX, arrY[i] -this.scrollY);
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#268b07';
     }
+    ctx.lineTo((arrY.length)* this.dx - this.scrollX, 2000 -this.scrollY);
+    ctx.closePath();
+    ctx.fill();
     ctx.stroke();
   }
   this.updateScroll = function()
@@ -384,6 +410,7 @@ var Terrain1 = function(arrY, dx)
     this.scrollX += (-this.scrollX+car1.wheels[0].x-350)/10;
     this.scrollY += (-this.scrollY+car1.wheels[0].y-350)/10;
   }
+
 }
 var Vector = function(x,y)
 {
@@ -430,6 +457,7 @@ function updateGameArea() {
 
     car1.controls();
     terrain.updateScroll();
-    car1.display();
     terrain.display();
+    car1.display();
+
 }
