@@ -41,7 +41,7 @@ var myGameArea = {
 }
 function makeCarTerrain()
 {
-  var points = [new Point(310,350,310,350,6,0.1,0.05,0.2),new Point(390,350,390,350,6,0.1,0.05,0.2)];
+  var points = [new Point(310,350,310,350,6,0.6,0.4,0.2),new Point(390,350,390,350,6,0.6,0.4,0.2)];
   var wheels = [new Wheel(270,390,270,390,1,25,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,25,0,0,1,0.8,0.1)];;
   car1 = new Car(points, wheels);
   terrain = new Terrain1([],100);
@@ -109,7 +109,7 @@ var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
         xImpRot = Math.abs(yImpRot*this.kFriction);
       }
     }
-    var newVel = (new Vector(xVel+xImpRot,yVel+yImpRot)).rotate(ang);
+    var newVel = (new Vector(velRot.x+xImpRot,velRot.y+yImpRot)).rotate(ang);
     this.pointBackOut(x1,y1,x2,y2);
     this.oldX = this.x - newVel.x;
     this.oldY = this.y - newVel.y;
@@ -381,8 +381,8 @@ var Terrain1 = function(arrY, dx)
   }
   this.updateScroll = function()
   {
-    this.scrollX += (-this.scrollX+car1.wheels[0].x-350)/20;
-    this.scrollY += (-this.scrollY+car1.wheels[0].y-350)/20;
+    this.scrollX += (-this.scrollX+car1.wheels[0].x-350)/10;
+    this.scrollY += (-this.scrollY+car1.wheels[0].y-350)/10;
   }
 }
 var Vector = function(x,y)
