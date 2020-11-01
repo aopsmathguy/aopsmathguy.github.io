@@ -48,8 +48,8 @@ function makeCarTerrain()
     new Point(195,160,195,160,0.1,0.6,0.4,0.2)
   ];
   var wheels = [
-    new Wheel(135,195,135,195,1,16,0,0,1,0.8,0.1),
-    new Wheel(215,195,215,195,1,16,0,0,1,0.8,0.1)
+    new Wheel(135,195,135,195,1,17,0,0,1,0.8,0.1),
+    new Wheel(215,195,215,195,1,17,0,0,1,0.8,0.1)
   ];
   car1 = new Car(points, wheels);
   terrain = new Terrain1([250,250,250],50);
