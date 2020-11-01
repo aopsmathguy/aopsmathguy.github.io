@@ -41,19 +41,25 @@ var myGameArea = {
 }
 function makeCarTerrain()
 {
-  var points = [new Point(310,350,310,350,6,0.6,0.4,0.2),new Point(390,350,390,350,6,0.6,0.4,0.2)];
+  var points = [
+    new Point(310,350,310,350,6,0.6,0.4,0.2),
+    new Point(390,350,390,350,6,0.6,0.4,0.2),
+    new Point(310,320,310,320,0.1,0.6,0.4,0.2),
+    new Point(390,320,390,320,0.1,0.6,0.4,0.2)
+  ];
   var wheels = [new Wheel(270,390,270,390,1,33,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,33,0,0,1,0.8,0.1)];;
   car1 = new Car(points, wheels);
-  terrain = new Terrain1([],100);
-  var thing = [500];
-  for (var i =0; i <200; i++)
+  terrain = new Terrain1([500,500,500],100);
+  var thing = [500,500,500];
+  for (var i =0; i <400; i++)
   {
-    thing[i] = 500+300*Math.random();
+    thing[i] = (100 + i)*Math.sin(i/5)+500+400*Math.random();
   }
-  for (var i = 1; i< 200;i++)
+  for (var i = 3; i< 400;i++)
   {
-    terrain.arrY[i] =(6*thing[i] + 4*thing[i-1]+4*thing[i+1]+thing[i-2]+thing[i+2])/16;
+    terrain.arrY[i] =(20*thing[i] + 15*thing[i-1]+15*thing[i+1]+6*thing[i-2]+6*thing[i+2]+thing[i-3]+thing[i+3])/64;
   }
+  terrain.arrY[200] = -200
 }
 var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
 {
@@ -302,14 +308,16 @@ var Car = function(points, wheels)
   this.wheels = wheels;
   this.display = function()
   {
-    /*ctx = myGameArea.context;
+    /*
+    ctx = myGameArea.context;
     ctx.beginPath();
     ctx.moveTo(wheels[0].x-terrain.scrollX,wheels[0].y-terrain.scrollY);
-    ctx.lineTo(points[0].x-terrain.scrollX,points[0].y-terrain.scrollY);
-    ctx.lineTo(points[1].x-terrain.scrollX,points[1].y-terrain.scrollY);
+    ctx.lineTo(points[2].x-terrain.scrollX,points[2].y-terrain.scrollY);
+    ctx.lineTo(points[3].x-terrain.scrollX,points[3].y-terrain.scrollY);
     ctx.lineTo(wheels[1].x-terrain.scrollX,wheels[1].y-terrain.scrollY);
     ctx.stroke();
     */
+
     wheels[0].display();
     wheels[1].display();
 
@@ -333,6 +341,9 @@ var Car = function(points, wheels)
   {
     points[0].doStep();
     points[1].doStep();
+    points[2].doStep();
+    points[3].doStep();
+
     wheels[0].doStep();
     wheels[1].doStep();
 
@@ -341,8 +352,8 @@ var Car = function(points, wheels)
   {
     wheels[0].wheelIntersection();
     wheels[1].wheelIntersection();
-    points[0].pointIntersection();
-    points[1].pointIntersection();
+    points[2].pointIntersection();
+    points[3].pointIntersection();
   }
   this.constrain = function(point1, point2, targetDist)
   {
@@ -369,16 +380,32 @@ var Car = function(points, wheels)
 
     this.constrain(points[0],points[1],80);
     this.constrain(wheels[0],wheels[1],160);
+
+    this.constrain(points[0],points[2],30);
+    this.constrain(points[1],points[3],30);
+
+    this.constrain(points[2],points[3],80);
+    this.constrain(points[0],points[3],10*Math.sqrt(73));
+    this.constrain(points[1],points[2],10*Math.sqrt(73));
+
+    this.constrain(points[2],wheels[0],10*Math.sqrt(65));
+    this.constrain(points[3],wheels[1],10*Math.sqrt(65));
   }
   this.controls = function()
   {
     if (myGameArea.keys && myGameArea.keys[39] || (myGameArea.x && myGameArea.y && myGameArea.x > 600))
     {
-      this.wheels[0].angVel += 0.1;
+      if(this.wheels[0].angVel < 1.2)
+      {
+        this.wheels[0].angVel += 0.1;
+      }
     }
     if (myGameArea.keys && myGameArea.keys[37] || (myGameArea.x && myGameArea.y && myGameArea.x < 600))
     {
-      this.wheels[0].angVel -= 0.1;
+      if(this.wheels[0].angVel > -1.2)
+      {
+        this.wheels[0].angVel -= 0.1;
+      }
     }
   }
 }
@@ -429,14 +456,6 @@ function updateGameArea() {
 
     car1.doStep();
 
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
     car1.intersect();
     car1.constrainAll();
     car1.intersect();
