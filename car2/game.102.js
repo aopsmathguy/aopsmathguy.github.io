@@ -42,18 +42,21 @@ var myGameArea = {
 function makeCarTerrain()
 {
   var points = [
-    new Point(310,350,310,350,6,0.6,0.4,0.2),
-    new Point(390,350,390,350,6,0.6,0.4,0.2),
-    new Point(310,320,310,320,0.1,0.6,0.4,0.2),
-    new Point(390,320,390,320,0.1,0.6,0.4,0.2)
+    new Point(155,175,155,175,6,0.6,0.4,0.2),
+    new Point(195,175,195,175,6,0.6,0.4,0.2),
+    new Point(155,160,155,160,0.1,0.6,0.4,0.2),
+    new Point(195,160,195,160,0.1,0.6,0.4,0.2)
   ];
-  var wheels = [new Wheel(270,390,270,390,1,33,0,0,1,0.8,0.1),new Wheel(430,390,430,390,1,33,0,0,1,0.8,0.1)];;
+  var wheels = [
+    new Wheel(135,195,135,195,1,16,0,0,1,0.8,0.1),
+    new Wheel(215,195,215,195,1,16,0,0,1,0.8,0.1)
+  ];
   car1 = new Car(points, wheels);
-  terrain = new Terrain1([500,500,500],100);
-  var thing = [500,500,500];
+  terrain = new Terrain1([250,250,250],50);
+  var thing = [250,250,250];
   for (var i =0; i <400; i++)
   {
-    thing[i] = (100 + i)*Math.sin(i/5)+500+400*Math.random();
+    thing[i] = (50 + i)*Math.sin(i/5)+250+200*Math.random();
   }
   for (var i = 3; i< 400;i++)
   {
@@ -78,7 +81,7 @@ var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
     this.oldX = temp;
 
     temp = this.y;
-    this.y = 2*this.y - this.oldY + 0.3;
+    this.y = 2*this.y - this.oldY + 0.15;
     this.oldY = temp;
   }
   this.intersectionCheck = function(x1,y1,x2,y2)
@@ -199,7 +202,7 @@ var Wheel = function(x,y,oldX,oldY,mass,r,ang,angVel,sFriction, kFriction, bounc
     this.oldX = temp;
 
     temp = this.y;
-    this.y = 2*this.y - this.oldY + 0.3;
+    this.y = 2*this.y - this.oldY + 0.15;
     this.oldY = temp;
 
     this.ang += this.angVel;
@@ -334,7 +337,7 @@ var Car = function(points, wheels)
     ctx.translate(centerX -terrain.scrollX, centerY-terrain.scrollY )
     ctx.rotate(ang);
     ctx.fillStyle = "bike-motocross.png";
-    ctx.drawImage(this.image, -105 , -65, 210, 105);
+    ctx.drawImage(this.image, -52.5 , -32.5, 105, 52.5);
     ctx.restore();
   }
   this.doStep = function()
@@ -372,24 +375,24 @@ var Car = function(points, wheels)
   }
   this.constrainAll = function()
   {
-    this.constrain(points[0],wheels[0],40*Math.sqrt(2));
-    this.constrain(points[1],wheels[1],40*Math.sqrt(2));
+    this.constrain(points[0],wheels[0],20*Math.sqrt(2));
+    this.constrain(points[1],wheels[1],20*Math.sqrt(2));
 
-    this.constrain(points[0],wheels[1],40*Math.sqrt(10));
-    this.constrain(points[1],wheels[0],40*Math.sqrt(10));
+    this.constrain(points[0],wheels[1],20*Math.sqrt(10));
+    this.constrain(points[1],wheels[0],20*Math.sqrt(10));
 
-    this.constrain(points[0],points[1],80);
-    this.constrain(wheels[0],wheels[1],160);
+    this.constrain(points[0],points[1],40);
+    this.constrain(wheels[0],wheels[1],80);
 
-    this.constrain(points[0],points[2],30);
-    this.constrain(points[1],points[3],30);
+    this.constrain(points[0],points[2],15);
+    this.constrain(points[1],points[3],15);
 
-    this.constrain(points[2],points[3],80);
-    this.constrain(points[0],points[3],10*Math.sqrt(73));
-    this.constrain(points[1],points[2],10*Math.sqrt(73));
+    this.constrain(points[2],points[3],40);
+    this.constrain(points[0],points[3],5*Math.sqrt(73));
+    this.constrain(points[1],points[2],5*Math.sqrt(73));
 
-    this.constrain(points[2],wheels[0],10*Math.sqrt(65));
-    this.constrain(points[3],wheels[1],10*Math.sqrt(65));
+    this.constrain(points[2],wheels[0],5*Math.sqrt(65));
+    this.constrain(points[3],wheels[1],5*Math.sqrt(65));
   }
   this.controls = function()
   {
