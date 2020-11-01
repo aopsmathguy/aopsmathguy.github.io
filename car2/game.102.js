@@ -59,7 +59,7 @@ function makeCarTerrain()
   {
     terrain.arrY[i] =(20*thing[i] + 15*thing[i-1]+15*thing[i+1]+6*thing[i-2]+6*thing[i+2]+thing[i-3]+thing[i+3])/64;
   }
-  terrain.arrY[200] = -200
+  terrain.arrY[400] = -2000;
 }
 var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
 {
@@ -142,7 +142,7 @@ var Point = function(x,y,oldX,oldY,mass,sFriction,kFriction, bouncy)
   }
   this.pointIntersection = function()
   {
-    for (var i = 0 ; i < terrain.arrY.length - 1; i++)
+    for (var i = terrain.collisionLow; i < terrain.collisionHigh; i++)
     {
       if (this.intersectionCheck(i*terrain.dx, terrain.arrY[i],(i+1)*terrain.dx, terrain.arrY[i+1]))
       {
@@ -178,7 +178,7 @@ var Wheel = function(x,y,oldX,oldY,mass,r,ang,angVel,sFriction, kFriction, bounc
   }
   this.wheelIntersection = function()
   {
-    for (var i = 0 ; i < terrain.arrY.length - 1; i++)
+    for (var i = terrain.collisionLow ; i < terrain.collisionHigh; i++)
     {
       if (this.intersectionCheck(i*terrain.dx, terrain.arrY[i],(i+1)*terrain.dx, terrain.arrY[i+1]))
       {
@@ -415,13 +415,17 @@ var Terrain1 = function(arrY, dx)
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
+  this.renderLow;
+  this.renderHigh;
+  this.collisionLow;
+  this.collisionHigh;
   this.display = function()
   {
     ctx = myGameArea.context;
     ctx.fillStyle = '#69512e';
     ctx.beginPath();
     ctx.moveTo( - this.scrollX,2000 -this.scrollY);
-    for (var i = 0; i < this.arrY.length; i++)
+    for (var i = this.renderLow; i < this.renderHigh; i++)
     {
       ctx.lineTo((i) * this.dx - this.scrollX, arrY[i] -this.scrollY);
       ctx.lineWidth = 8;
@@ -436,8 +440,20 @@ var Terrain1 = function(arrY, dx)
   {
     this.scrollX += (-this.scrollX+car1.wheels[0].x-350)/10;
     this.scrollY += (-this.scrollY+car1.wheels[0].y-350)/10;
+    this.updateRenderBounds();
+    this.updateCollisionBounds();
   }
-
+  this.updateRenderBounds = function()
+  {
+    this.renderLow = Math.floor(this.scrollX/this.dx)-1;
+    this.renderHigh = Math.floor((this.scrollX+1200)/this.dx)+2;
+  }
+  this.updateCollisionBounds = function()
+  {
+    var center = (car1.points[0].x+car1.points[1].x)/2;
+    this.collisionLow = Math.floor(center/this.dx)-3;
+    this.collisionHigh = Math.floor(center/this.dx)+4;
+  }
 }
 var Vector = function(x,y)
 {
@@ -456,22 +472,11 @@ function updateGameArea() {
 
     car1.doStep();
 
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
-    car1.intersect();
-    car1.constrainAll();
+    for(var i = 0; i < 30; i++)
+    {
+      car1.intersect();
+      car1.constrainAll();
+    }
 
 
     car1.controls();
