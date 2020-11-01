@@ -56,7 +56,7 @@ function makeCarTerrain()
   var thing = [250,250,250];
   for (var i =0; i <400; i++)
   {
-    thing[i] = (50 + i)*Math.sin(i/5)+250+200*Math.random();
+    thing[i] = (50 + i/2)*Math.sin(i/5)+250+200*Math.random();
   }
   for (var i = 3; i< 400;i++)
   {
