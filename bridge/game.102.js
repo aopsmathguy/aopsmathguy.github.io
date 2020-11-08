@@ -3,6 +3,7 @@ function startGame() {
 }
 var bridge;
 var terrain;
+var state = "make";
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -11,8 +12,8 @@ var myGameArea = {
         this.canvas.height = 700;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 20);
 
+        myGameArea.keys = [];
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = true;
@@ -24,14 +25,29 @@ var myGameArea = {
           myGameArea.x = e.touches[0].screenX;
           myGameArea.y = e.touches[0].screenY;
         })
-
+        window.addEventListener('mousemove', function (e) {
+          myGameArea.x = e.pageX;
+          myGameArea.y = e.pageY;
+        })
+        myGameArea.click = false;
+        myGameArea.up = false;
+        window.addEventListener('mousedown', function (e) {
+          myGameArea.mouseDown = true;
+          myGameArea.click = true;
+        })
+        window.addEventListener('mouseup', function (e) {
+          myGameArea.mouseDown = false;
+          myGameArea.up = true;
+        })
         window.addEventListener("keydown", function(e) {
     // space, page up, page down and arrow keys:
           if([32, 33, 34, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
             e.preventDefault();
           }
         }, false);
+
         makeBridgeTerrain();
+        this.interval = setInterval(updateGameArea, 20);
     },
     clear : function() {
       this.context.fillStyle = "#000000";
@@ -43,28 +59,14 @@ function makeBridgeTerrain()
 {
   var points = [
     new Point(200,350,100000,true),
-    new Point(300,350,1,false),
-    new Point(400,350,1,false),
-    new Point(500,350,1,false),
-    new Point(600,350,1,false),
-    new Point(700,350,1,false),
     new Point(800,350,100000,true),
-
-    new Point(250,305,1,false),
-    new Point(350,260,1,false),
-    new Point(450,240,1,false),
-
-    new Point(550,240,1,false),
-    new Point(650,260,1,false),
-    new Point(750,305,1,false),
-
-    new Point(500,450,150,false),
-
+    new Point(500,400,150,false),
+    new Point(500,350,1,false)
   ];
   var connections = [
-    new Connection(3,13,points),
+    new Connection(2,3,points),
 
-    new Connection(0,1,points),
+    /*new Connection(0,1,points),
     new Connection(1,2,points),
     new Connection(2,3,points),
     new Connection(3,4,points),
@@ -73,14 +75,14 @@ function makeBridgeTerrain()
 
     new Connection(0,7,points),
     new Connection(1,7,points),
-    //new Connection(1,8,points),
+    new Connection(1,8,points),
     new Connection(2,8,points),
     new Connection(2,9,points),
     new Connection(3,9,points),
     new Connection(3,10,points),
     new Connection(4,10,points),
     new Connection(4,11,points),
-    //new Connection(5,11,points),
+    new Connection(5,11,points),
     new Connection(5,12,points),
     new Connection(6,12,points),
 
@@ -88,7 +90,7 @@ function makeBridgeTerrain()
     new Connection(8,9,points),
     new Connection(9,10,points),
     new Connection(10,11,points),
-    new Connection(11,12,points),
+    new Connection(11,12,points)*/
   ];
   connections[0].maxTension = 100;
   bridge = new Bridge(points, connections);
@@ -118,11 +120,17 @@ var Point = function(x,y,mass,pinned)
   this.bouncy = 0.2;
 
   this.pinned = pinned;
+
+  this.dragging = false;
+
   this.xSum = 0;
   this.ySum = 0;
 
   this.numConnections = 0;
-
+  this.distanceToMouse = function()
+  {
+    return Math.sqrt((this.x - myGameArea.x)*(this.x - myGameArea.x)+(this.y - myGameArea.y)*(this.y - myGameArea.y));;
+  }
   this.doStep = function()
   {
     if (!this.pinned)
@@ -204,13 +212,17 @@ var Connection = function(idx1, idx2,points)
 {
   this.idx1 = idx1;
   this.idx2 = idx2;
-  var xDiff = points[idx1].x - points[idx2].x;
-  var yDiff = points[idx1].y - points[idx2].y;
-  this.targetLength = Math.sqrt(xDiff*xDiff + yDiff * yDiff);
+  this.targetLength = 0;
   this.broken = false;
   this.tension = 0;
   this.maxTension = 0.05;
   this.k = 2;
+  this.setTargetLength = function()
+  {
+    var xDiff = bridge.points[idx1].x - bridge.points[idx2].x;
+    var yDiff = bridge.points[idx1].y - bridge.points[idx2].y;
+    this.targetLength = Math.sqrt(xDiff*xDiff + yDiff * yDiff);
+  }
   this.color = function()
   {
     var red = Math.floor(-127 * Math.cos(Math.PI*this.tension/this.maxTension)+128).toString(16);
@@ -229,35 +241,75 @@ var Bridge = function(points, connections)
   this.connections = connections;
   this.numIterations = 10;
   this.maxStress=0;
+
+  this.tool = "move";
+
+  this.lastPointClick = -1;
+  this.framec
   this.display = function()
   {
     ctx = myGameArea.context;
     this.maxStress=0;
-    for (var i = 0 ; i < connections.length; i++)
+    for (var i = 0 ; i < this.connections.length; i++)
     {
-      var connection = connections[i];
+      var connection = this.connections[i];
       if (connection.broken)
       {
         continue;
       }
       ctx.strokeStyle = "#" + connection.color();
       ctx.beginPath();
-      ctx.lineTo(points[connection.idx1].x-terrain.scrollX,points[connection.idx1].y-terrain.scrollY);
-      ctx.lineTo(points[connection.idx2].x-terrain.scrollX,points[connection.idx2].y-terrain.scrollY);
+      ctx.moveTo(this.points[connection.idx1].x-terrain.scrollX,this.points[connection.idx1].y-terrain.scrollY);
+      ctx.lineTo(this.points[connection.idx2].x-terrain.scrollX,this.points[connection.idx2].y-terrain.scrollY);
       ctx.stroke();
 
       this.maxStress = Math.max(this.maxStress, Math.floor(100*connection.tension/connection.maxTension));
     }
+    if(state == "make" && this.tool == "build")
+    {
+      if(myGameArea.mouseDown)
+      {
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.setLineDash([16, 16]);
+        ctx.strokeStyle = "#00FF00";
+        ctx.beginPath();
+        ctx.moveTo(this.points[this.lastPointClick].x - terrain.scrollX,this.points[this.lastPointClick].y - terrain.scrollY);
+        ctx.lineTo(this.buildX - terrain.scrollX,this.buildY-terrain.scrollY);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
     ctx.save();
-    ctx.translate(this.points[13].x -terrain.scrollX, this.points[13].y-terrain.scrollY )
+    ctx.translate(this.points[2].x -terrain.scrollX, this.points[2].y-terrain.scrollY )
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect( -20 , -20, 2*20, 2*20);
     ctx.restore();
+
+    for (var i = 0; i < this.points.length; i++)
+    {
+      ctx.beginPath();
+      ctx.arc(this.points[i].x, this.points[i].y, 10, 0, 2 * Math.PI, false);
+      if (state == "make" && i == this.lastPointClick)
+      {
+        ctx.fillStyle = 'blue';
+      }
+      else if (!this.points[i].pinned)
+      {
+        ctx.fillStyle = 'yellow';
+      }
+      else {
+        ctx.fillStyle = 'red';
+      }
+      ctx.fill();
+    }
 
     ctx.font = "30px Arial";
     ctx.textAlign = "left";
     ctx.fillStyle = "#FFFFFF";
     ctx.fillText(this.maxStress + "%", 30, 50);
+    ctx.fillText(this.tool, 30, 80);
   }
   this.doStep = function()
   {
@@ -268,15 +320,15 @@ var Bridge = function(points, connections)
   }
   this.iterations = function()
   {
-    for (var i = 0; i < this.points.length; i++)
-    {
-      this.points[i].pointIntersection();
-    }
     for (var i = 0 ; i < this.numIterations; i++)
     {
-
       bridge.constrainAll();
+      for (var j = 0; j < this.points.length; j++)
+      {
+        this.points[j].pointIntersection();
+      }
     }
+
   }
   this.constrain = function(connectionsIdx)
   {
@@ -329,8 +381,108 @@ var Bridge = function(points, connections)
       }
     }
   }
+  this.getIdxMousePoint = function()
+  {
+    var minDist = 20;
+    var idxNewPoint = -1;
+    for(var i = 0 ; i < this.points.length; i++)
+    {
+      var pointToMouse = this.points[i].distanceToMouse();
+      if (minDist > pointToMouse)
+      {
+        minDist = pointToMouse;
+        idxNewPoint = i;
+      }
+    }
+    return idxNewPoint;
+  }
   this.controls = function()
   {
+    if(!this.qBefore && myGameArea.keys[81])
+    {
+      this.qBefore = true;
+      if (this.tool == "move"){
+        this.tool = "build";
+      }
+      else{
+        this.tool = "move";
+      }
+    }
+    else if (!myGameArea.keys[81]){
+      this.qBefore = false;
+    }
+    if(myGameArea.click)
+    {
+      var idxNewPoint = this.getIdxMousePoint();
+      if(this.tool == "build")
+      {
+          if (idxNewPoint == -1){
+            this.points.push(new Point(myGameArea.x, myGameArea.y,1,false));
+            this.lastPointClick = this.points.length - 1;
+          }
+          else {
+            this.lastPointClick = idxNewPoint;
+          }
+      }
+
+      myGameArea.click = false;
+    }
+    else if (myGameArea.up){
+      //create new point
+      var idxNewPoint = this.getIdxMousePoint();
+      if(this.tool == "build")
+      {
+        if (idxNewPoint == -1){
+          this.points.push(new Point(myGameArea.x, myGameArea.y,1,false));
+          this.connections.push(new Connection(this.lastPointClick, this.points.length - 1));
+          this.lastPointClick = this.points.length - 1;
+        }
+        else if(this.lastPointClick != idxNewPoint){
+          var duplicate = false;
+          for (var i = 0; i < this.connections.length; i++)
+          {
+            duplicate = (duplicate || (this.connections[i].idx1 == this.lastPointClick && this.connections[i].idx2 == idxNewPoint) || (this.connections[i].idx2 == this.lastPointClick && this.connections[i].idx1 == idxNewPoint))
+          }
+          if (!duplicate)
+          {
+            this.connections.push(new Connection(this.lastPointClick, idxNewPoint));
+            this.lastPointClick = idxNewPoint;
+          }
+        }
+
+      }
+      myGameArea.up = false;
+    }
+    else if (myGameArea.mouseDown)
+    {
+      var idxNewPoint = this.getIdxMousePoint();
+      if (idxNewPoint == -1)
+      {
+        this.buildX = myGameArea.x;
+        this.buildY = myGameArea.y;
+      }
+      else {
+        this.buildX = this.points[idxNewPoint].x;
+        this.buildY = this.points[idxNewPoint].y;
+      }
+    }
+
+
+//space to start
+    if (myGameArea.keys.length >=32 && myGameArea.keys[32])
+    {
+      if (state == "make")
+      {
+        for (var i = 0 ; i < this.connections.length; i++)
+        {
+          this.connections[i].setTargetLength();
+        }
+        state = "run";
+      }
+      else {
+        state = "make";
+      }
+    }
   }
 }
 var Terrain1 = function(arrY, dx)
@@ -373,10 +525,18 @@ var Vector = function(x,y)
   }
 }
 function updateGameArea() {
-
+  if (state ==  "run")
+  {
     myGameArea.clear();
     bridge.doStep();
     bridge.iterations();
     terrain.display();
     bridge.display();
+  }
+  else {
+    myGameArea.clear();
+    bridge.controls();
+    terrain.display();
+    bridge.display();
+  }
 }
