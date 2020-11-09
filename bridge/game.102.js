@@ -25,10 +25,12 @@ var myGameArea = {
           myGameArea.x = e.touches[0].screenX;
           myGameArea.y = e.touches[0].screenY;
         })
+        const rect = this.canvas.getBoundingClientRect();
         window.addEventListener('mousemove', function (e) {
-          myGameArea.x = e.pageX;
-          myGameArea.y = e.pageY;
-        })
+
+          myGameArea.x = e.clientX - rect.left;
+          myGameArea.y = e.clientY - rect.top;
+        });
         myGameArea.click = false;
         myGameArea.up = false;
         window.addEventListener('mousedown', function (e) {
@@ -216,7 +218,7 @@ var Connection = function(idx1, idx2,points)
   this.broken = false;
   this.tension = 0;
   this.maxTension = 0.02;
-  this.k = 0.6;
+  this.k = 0.2;
   this.setTargetLength = function()
   {
     var xDiff = bridge.points[idx1].x - bridge.points[idx2].x;
@@ -242,7 +244,7 @@ var Bridge = function(points, connections)
   this.numIterations = 10;
   this.maxStress=0;
 
-  this.tool = "move";
+  this.tool = "build";
 
   this.lastPointClick = -1;
   this.framec
