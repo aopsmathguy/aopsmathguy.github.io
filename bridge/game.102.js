@@ -140,7 +140,7 @@ var Point = function(x,y,mass,pinned)
       this.oldX = temp;
 
       temp = this.y;
-      this.y = 2*this.y - this.oldY + 0.1;
+      this.y = 2*this.y - this.oldY + 0.1/(bridge.numIterations*bridge.numIterations);
       this.oldY = temp;
     }
   }
@@ -215,8 +215,8 @@ var Connection = function(idx1, idx2,points)
   this.targetLength = 0;
   this.broken = false;
   this.tension = 0;
-  this.maxTension = 0.05;
-  this.k = 2;
+  this.maxTension = 0.02;
+  this.k = 0.6;
   this.setTargetLength = function()
   {
     var xDiff = bridge.points[idx1].x - bridge.points[idx2].x;
@@ -322,7 +322,8 @@ var Bridge = function(points, connections)
   {
     for (var i = 0 ; i < this.numIterations; i++)
     {
-      bridge.constrainAll();
+      this.doStep();
+      this.constrainAll();
       for (var j = 0; j < this.points.length; j++)
       {
         this.points[j].pointIntersection();
@@ -528,7 +529,6 @@ function updateGameArea() {
   if (state ==  "run")
   {
     myGameArea.clear();
-    bridge.doStep();
     bridge.iterations();
     terrain.display();
     bridge.display();
