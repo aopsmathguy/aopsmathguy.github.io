@@ -29,8 +29,8 @@ var myGameArea = {
         window.addEventListener('mousemove', function (e) {
           myGameArea.x = e.clientX - rect.left;
           myGameArea.y = e.clientY - rect.top;
-          myGameArea.xRounded = Math.floor(0.5+(e.clientX - rect.left)/12.5)*12.5;
-          myGameArea.yRounded = Math.floor(0.5+(e.clientY - rect.top)/12.5)*12.5;
+          myGameArea.xRounded = round(e.clientX - rect.left);
+          myGameArea.yRounded = round(e.clientY - rect.top);
         });
         myGameArea.click = false;
         myGameArea.up = false;
@@ -248,7 +248,11 @@ var Bridge = function(points, connections)
   this.tool = "build";
 
   this.lastPointClick = -1;
-  this.framec
+  this.activeIdx = -1;
+  this.beamLength = 100;
+
+  this.mouseXActive;
+  this.mouseYActive;
   this.display = function()
   {
     ctx = myGameArea.context;
@@ -388,13 +392,46 @@ var Bridge = function(points, connections)
   {
     var minDist = 20;
     var idxNewPoint = -1;
-    for(var i = 0 ; i < this.points.length; i++)
+    if (this.activeIdx == -1)
     {
-      var pointToMouse = this.points[i].distanceToMouse();
-      if (minDist > pointToMouse)
+      this.mouseXActive = round(myGameArea.x);
+      this.mouseYActive = round(myGameArea.y);
+      for(var i = 0 ; i < this.points.length; i++)
       {
-        minDist = pointToMouse;
-        idxNewPoint = i;
+        var pointToMouse = this.points[i].distanceToMouse();
+        if (minDist > pointToMouse)
+        {
+          minDist = pointToMouse;
+          idxNewPoint = i;
+        }
+      }
+    }
+    else {
+      var dist = this.points[this.activeIdx].distanceToMouse();
+      var effX;
+      var effY;
+      if (dist <= this.beamLength)
+      {
+        effX = myGameArea.x;
+        effY = myGameArea.y;
+
+      }
+      else {
+        effX = this.points[this.activeIdx].x + this.beamLength*(myGameArea.x - this.points[this.activeIdx].x)/dist;
+        effY = this.points[this.activeIdx].y + this.beamLength*(myGameArea.y - this.points[this.activeIdx].y)/dist;
+      }
+      this.mouseXActive = round(effX);
+      this.mouseYActive = round(effY);
+
+      for(var i = 0 ; i < this.points.length; i++)
+      {
+        var pointToMouse = Math.sqrt((effX - this.points[i].x)*(effX - this.points[i].x) + (effY - this.points[i].y)*(effY - this.points[i].y));
+        var previousPointToEff = Math.sqrt((effX - this.points[this.activeIdx].x)*(effX - this.points[this.activeIdx].x)+(effY - this.points[this.activeIdx].y)*(effY - this.points[this.activeIdx].y));
+        if (minDist > pointToMouse && previousPointToEff <= this.beamLength+1)
+        {
+          minDist = pointToMouse;
+          idxNewPoint = i;
+        }
       }
     }
     return idxNewPoint;
@@ -416,12 +453,15 @@ var Bridge = function(points, connections)
     }
     if(myGameArea.click)
     {
+      this.activeIdx = -1;
       var idxNewPoint = this.getIdxMousePoint();
+      this.activeIdx = idxNewPoint;
       if(this.tool == "build")
       {
           if (idxNewPoint == -1){
             this.points.push(new Point(myGameArea.xRounded, myGameArea.yRounded,1,false));
             this.lastPointClick = this.points.length - 1;
+            this.activeIdx = this.points.length - 1;
           }
           else {
             this.lastPointClick = idxNewPoint;
@@ -433,10 +473,11 @@ var Bridge = function(points, connections)
     else if (myGameArea.up){
       //create new point
       var idxNewPoint = this.getIdxMousePoint();
+      this.activeIdx = -1;
       if(this.tool == "build")
       {
         if (idxNewPoint == -1){
-          this.points.push(new Point(myGameArea.xRounded, myGameArea.yRounded,1,false));
+          this.points.push(new Point(this.buildX,this.buildY,1,false));
           this.connections.push(new Connection(this.lastPointClick, this.points.length - 1));
           this.lastPointClick = this.points.length - 1;
         }
@@ -461,8 +502,9 @@ var Bridge = function(points, connections)
       var idxNewPoint = this.getIdxMousePoint();
       if (idxNewPoint == -1)
       {
-        this.buildX = myGameArea.xRounded;
-        this.buildY = myGameArea.yRounded;
+        this.buildX = this.mouseXActive;
+
+        this.buildY = this.mouseYActive;
       }
       else {
         this.buildX = this.points[idxNewPoint].x;
@@ -527,6 +569,10 @@ var Vector = function(x,y)
     return new Vector(x*Math.cos(theta)-y*Math.sin(theta), y*Math.cos(theta) + x*Math.sin(theta));
   }
 }
+var round = function(num)
+{
+  return Math.floor(0.5 + num/12.5)*12.5;
+}
 function updateGameArea() {
   if (state ==  "run")
   {
@@ -540,5 +586,6 @@ function updateGameArea() {
     bridge.controls();
     terrain.display();
     bridge.display();
+    //console.log(bridge.points[0].);
   }
 }
