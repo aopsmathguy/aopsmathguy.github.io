@@ -29,8 +29,8 @@ var myGameArea = {
         window.addEventListener('mousemove', function (e) {
           myGameArea.x = e.clientX - rect.left;
           myGameArea.y = e.clientY - rect.top;
-          myGameArea.xRounded = Math.floor(0.5+(e.clientX - rect.left)/10)*10;
-          myGameArea.yRounded = Math.floor(0.5+(e.clientY - rect.top)/10)*10;
+          myGameArea.xRounded = Math.floor(0.5+(e.clientX - rect.left)/12.5)*12.5;
+          myGameArea.yRounded = Math.floor(0.5+(e.clientY - rect.top)/12.5)*12.5;
         });
         myGameArea.click = false;
         myGameArea.up = false;
