@@ -27,9 +27,10 @@ var myGameArea = {
         })
         const rect = this.canvas.getBoundingClientRect();
         window.addEventListener('mousemove', function (e) {
-
           myGameArea.x = e.clientX - rect.left;
           myGameArea.y = e.clientY - rect.top;
+          myGameArea.xRounded = Math.floor(0.5+(e.clientX - rect.left)/10)*10;
+          myGameArea.yRounded = Math.floor(0.5+(e.clientY - rect.top)/10)*10;
         });
         myGameArea.click = false;
         myGameArea.up = false;
@@ -273,7 +274,6 @@ var Bridge = function(points, connections)
       {
         ctx.save();
         ctx.globalAlpha = 0.5;
-        ctx.setLineDash([16, 16]);
         ctx.strokeStyle = "#00FF00";
         ctx.beginPath();
         ctx.moveTo(this.points[this.lastPointClick].x - terrain.scrollX,this.points[this.lastPointClick].y - terrain.scrollY);
@@ -420,7 +420,7 @@ var Bridge = function(points, connections)
       if(this.tool == "build")
       {
           if (idxNewPoint == -1){
-            this.points.push(new Point(myGameArea.x, myGameArea.y,1,false));
+            this.points.push(new Point(myGameArea.xRounded, myGameArea.yRounded,1,false));
             this.lastPointClick = this.points.length - 1;
           }
           else {
@@ -436,7 +436,7 @@ var Bridge = function(points, connections)
       if(this.tool == "build")
       {
         if (idxNewPoint == -1){
-          this.points.push(new Point(myGameArea.x, myGameArea.y,1,false));
+          this.points.push(new Point(myGameArea.xRounded, myGameArea.yRounded,1,false));
           this.connections.push(new Connection(this.lastPointClick, this.points.length - 1));
           this.lastPointClick = this.points.length - 1;
         }
@@ -461,8 +461,8 @@ var Bridge = function(points, connections)
       var idxNewPoint = this.getIdxMousePoint();
       if (idxNewPoint == -1)
       {
-        this.buildX = myGameArea.x;
-        this.buildY = myGameArea.y;
+        this.buildX = myGameArea.xRounded;
+        this.buildY = myGameArea.yRounded;
       }
       else {
         this.buildX = this.points[idxNewPoint].x;
