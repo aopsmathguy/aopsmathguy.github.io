@@ -50,7 +50,7 @@ var myGameArea = {
         }, false);
 
         makeBridgeTerrain();
-        this.interval = setInterval(updateGameArea, 20);
+        this.interval = setInterval(updateGameArea, 17);
     },
     clear : function() {
       this.context.fillStyle = "#000000";
@@ -63,7 +63,7 @@ function makeBridgeTerrain()
   var points = [
     new Point(200,350,100000,true),
     new Point(800,350,100000,true),
-    new Point(500,400,150,false),
+    new Point(500,400,1,false),
     new Point(500,350,1,false)
   ];
   var connections = [
@@ -222,7 +222,7 @@ var Connection = function(idx1, idx2,points)
   this.broken = false;
   this.tension = 0;
   this.maxTension = 0.02;
-  this.k = 0.2;
+  this.k = 0.05;
   this.setTargetLength = function()
   {
     var xDiff = bridge.points[idx1].x - bridge.points[idx2].x;
@@ -245,7 +245,7 @@ var Bridge = function(points, connections)
 
   this.points = points;
   this.connections = connections;
-  this.numIterations = 10;
+  this.numIterations = 40;
   this.maxStress=0;
 
   this.tool = "build";
@@ -371,6 +371,15 @@ var Bridge = function(points, connections)
     ctx.fillStyle = "#FFFFFF";
     ctx.fillText(this.maxStress + "%", 30, 50);
     ctx.fillText(this.tool, 30, 80);
+    ctx.fillText("mass: " + Math.floor(this.points[2].mass), 30, 110);
+    if(state == "run")
+    {
+      this.points[2].mass +=.2;
+    }
+    for(var i = 0; i < this.connections.length;i ++)
+    {
+      this.connections[i].tension = 0;
+    }
   }
   this.doStep = function()
   {
@@ -390,7 +399,6 @@ var Bridge = function(points, connections)
         this.points[j].pointIntersection();
       }
     }
-
   }
   this.constrain = function(connectionsIdx)
   {
@@ -408,12 +416,12 @@ var Bridge = function(points, connections)
     var xCOM = (point1.x*point1.mass+point2.x*point2.mass)/(point1.mass+point2.mass);
     var yCOM = (point1.y*point1.mass+point2.y*point2.mass)/(point1.mass+point2.mass);
     var scale = connection.targetLength/distance;
-    connection.tension = Math.abs(scale - 1);
+    connection.tension = Math.max(Math.abs(scale - 1),connection.tension);
     if (Math.abs(connection.tension) > connection.maxTension)
     {
       connections[connectionsIdx].broken = true;
     }
-    var newScale = Math.sqrt(connection.k*(point1.mass+point2.mass)/(point1.mass*point2.mass));
+    var newScale = connection.k*(point1.mass+point2.mass)/(point1.mass*point2.mass)*100/connection.targetLength;
     point1.xSum += xCOM + Math.pow(scale,newScale) * (point1.x - xCOM);
     point1.ySum += yCOM + Math.pow(scale,newScale) * (point1.y - yCOM);
     point1.numConnections ++;
