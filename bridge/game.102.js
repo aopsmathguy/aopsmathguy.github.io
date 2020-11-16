@@ -374,7 +374,10 @@ var Bridge = function(points, connections)
     ctx.fillText("mass: " + Math.floor(this.points[2].mass), 30, 110);
     if(state == "run")
     {
-      this.points[2].mass +=.2;
+    	if(this.points[2].y < 700-terrain.waterHeight)
+      {
+      	this.points[2].mass +=.2;
+      }
     }
     for(var i = 0; i < this.connections.length;i ++)
     {
@@ -609,7 +612,8 @@ var Terrain1 = function(arrY, dx)
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
-
+	
+  this.waterHeight = 100;
   this.display = function()
   {
     this.renderLow = 0;
@@ -618,7 +622,15 @@ var Terrain1 = function(arrY, dx)
     this.collisionHigh= this.arrY.length;
 
     ctx = myGameArea.context;
-    ctx.fillStyle = '#FFFFFF';
+    
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.translate(0 -terrain.scrollX, 700-this.waterHeight-terrain.scrollY )
+    ctx.fillStyle = "#8080FF";
+    ctx.fillRect( -0 , -0, 1000,this.waterHeight);
+    ctx.restore();
+    
+    ctx.fillStyle = '#808080';
     ctx.beginPath();
     ctx.moveTo( - this.scrollX,2000 -this.scrollY);
     for (var i = this.renderLow; i < this.renderHigh; i++)
@@ -650,14 +662,15 @@ function updateGameArea() {
   {
     myGameArea.clear();
     bridge.iterations();
-    terrain.display();
-    bridge.display();
+
   }
   else {
     myGameArea.clear();
     bridge.controls();
-    terrain.display();
-    bridge.display();
+
     //console.log(bridge.points[0].);
   }
+      
+    bridge.display();
+    terrain.display();
 }
