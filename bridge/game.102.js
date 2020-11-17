@@ -243,8 +243,8 @@ var Connection = function(idx1, idx2,points)
   this.k = 0.05;
   this.setTargetLength = function()
   {
-    var xDiff = bridge.points[idx1].x - bridge.points[idx2].x;
-    var yDiff = bridge.points[idx1].y - bridge.points[idx2].y;
+    var xDiff = bridge.points[this.idx1].x - bridge.points[this.idx2].x;
+    var yDiff = bridge.points[this.idx1].y - bridge.points[this.idx2].y;
     this.targetLength = Math.sqrt(xDiff*xDiff + yDiff * yDiff);
   }
   this.color = function()
@@ -514,7 +514,6 @@ var Bridge = function(points, connections)
         if (minDist > pointToMouse && this.points[i].connectable)
         {
           var xDiffSmall = Math.min(Math.abs(this.points[i].x - this.points[this.activeIdx].x+ 0.5*12.5),Math.abs(this.points[i].x- this.points[this.activeIdx].x- 0.5*12.5));
-          console.log(xDiffSmall/12.5);
 
           var yDiffSmall = Math.min(Math.abs(this.points[i].y - this.points[this.activeIdx].y+ 0.5*12.5),Math.abs(this.points[i].y- this.points[this.activeIdx].y- 0.5*12.5));
           //console.log(yDiff/12.5);
@@ -617,6 +616,7 @@ var Bridge = function(points, connections)
           if (connection.idx2 == idxNewPoint || connection.idx1 == idxNewPoint)
           {
             this.connections.splice(i, 1);
+            continue;
           }
           if(connection.idx1 > idxNewPoint)
           {
@@ -715,4 +715,5 @@ function updateGameArea() {
 
     bridge.display();
     terrain.display();
+    //console.log(bridge.connections.length);
 }
