@@ -731,7 +731,7 @@ function updateGameArea() {
     myGameArea.clear();
     bridge.controls();
     
-    if(myGameArea.keys[83] && myGameArea.keys[91])
+    if(myGameArea.keys[83])
     {
         bridge.targetLengthssetting();
         localStorage.connections1 = JSON.stringify(bridge.connections);
