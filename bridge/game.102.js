@@ -113,9 +113,25 @@ function makeBridgeTerrain()
     new Connection(10,11,points),
     new Connection(11,12,points)*/
   ];
+  if (localStorage.connections1)
+  {
+    var storedPoints = JSON.parse(localStorage.points1);
+    var storedConnections = JSON.parse(localStorage.connections1);
+    for(var i = 0; i < storedPoints.length; i++)
+    {
+        points[i] = new Point(storedPoints[i].x, storedPoints[i].y,storedPoints[i].mass, storedPoints[i].pinned);
+    }
+    for(var i = 0; i < storedConnections.length; i++)
+    {
+        connections[i] = new Connection(storedConnections[i].idx1,storedConnections[i].idx2, points);
+    }
+    //Object.assign(bridge, storedBridge);
+  }    
+    
   points[2].connectable = false;
   connections[0].maxTension = 100;
   bridge = new Bridge(points, connections);
+  
   terrain = new Terrain1([],50);
   for (var i = 0; i < 5; i++)
   {
@@ -129,6 +145,7 @@ function makeBridgeTerrain()
   {
     terrain.arrY[i] = 350;
   }
+
 }
 var Point = function(x,y,mass,pinned)
 {
@@ -636,16 +653,20 @@ var Bridge = function(points, connections)
     {
       if (state == "make")
       {
-        for (var i = 0 ; i < this.connections.length; i++)
-        {
-          this.connections[i].setTargetLength();
-        }
+        this.targetLengthssetting();
         state = "run";
       }
       else {
         state = "make";
       }
     }
+  }
+  this.targetLengthssetting = function()
+  {
+     for (var i = 0 ; i < this.connections.length; i++)
+     {
+         this.connections[i].setTargetLength();
+     }
   }
 }
 var Terrain1 = function(arrY, dx)
@@ -709,7 +730,13 @@ function updateGameArea() {
   else {
     myGameArea.clear();
     bridge.controls();
-
+    
+    if(myGameArea.keys[83] && myGameArea.keys[91])
+    {
+        bridge.targetLengthssetting();
+        localStorage.connections1 = JSON.stringify(bridge.connections);
+        localStorage.points1 = JSON.stringify(bridge.points);
+    }
     //console.log(bridge.points[0].);
   }
 
