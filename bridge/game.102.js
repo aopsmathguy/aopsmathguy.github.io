@@ -14,6 +14,10 @@ var myGameArea = {
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 
         myGameArea.keys = [];
+        window.oncontextmenu = function ()
+        {
+            return false;     // cancel default menu
+        }
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = true;
@@ -35,12 +39,26 @@ var myGameArea = {
         myGameArea.click = false;
         myGameArea.up = false;
         window.addEventListener('mousedown', function (e) {
-          myGameArea.mouseDown = true;
-          myGameArea.click = true;
+          if(e.button == 0)
+          {
+            myGameArea.mouseDown = true;
+            myGameArea.click = true;
+          }
+          else if (e.button != 0)
+          {
+            myGameArea.rightClick = true;
+          }
         })
         window.addEventListener('mouseup', function (e) {
-          myGameArea.mouseDown = false;
-          myGameArea.up = true;
+          if(e.button == 0)
+          {
+            myGameArea.mouseDown = false;
+            myGameArea.up = true;
+          }
+          else if (e.button != 0)
+          {
+            myGameArea.rightClick = false;
+          }
         })
         window.addEventListener("keydown", function(e) {
     // space, page up, page down and arrow keys:
@@ -465,7 +483,7 @@ var Bridge = function(points, connections)
       for(var i = 0 ; i < this.points.length; i++)
       {
         var pointToMouse = this.points[i].distanceToMouse();
-        if (minDist > pointToMouse)
+        if (minDist > pointToMouse && this.points[i].connectable)
         {
           minDist = pointToMouse;
           idxNewPoint = i;
@@ -493,7 +511,7 @@ var Bridge = function(points, connections)
       {
         var pointToMouse = Math.sqrt((effX - this.points[i].x)*(effX - this.points[i].x) + (effY - this.points[i].y)*(effY - this.points[i].y));
 
-        if (minDist > pointToMouse)
+        if (minDist > pointToMouse && this.points[i].connectable)
         {
           var xDiffSmall = Math.min(Math.abs(this.points[i].x - this.points[this.activeIdx].x+ 0.5*12.5),Math.abs(this.points[i].x- this.points[this.activeIdx].x- 0.5*12.5));
           console.log(xDiffSmall/12.5);
@@ -587,7 +605,31 @@ var Bridge = function(points, connections)
         this.buildY = this.points[idxNewPoint].y;
       }
     }
+    if(myGameArea.rightClick)
+    {
+      var idxNewPoint = this.getIdxMousePoint();
+      if (idxNewPoint > 3 )
+      {
+        this.points.splice(idxNewPoint, 1);
+        for (var i = this.connections.length - 1 ; i >= 0; i--)//remove connections associated with this.
+        {
+          var connection = this.connections[i];
+          if (connection.idx2 == idxNewPoint || connection.idx1 == idxNewPoint)
+          {
+            this.connections.splice(i, 1);
+          }
+          if(connection.idx1 > idxNewPoint)
+          {
+            connection.idx1--;
+          }
+          if(connection.idx2 > idxNewPoint)
+          {
+            connection.idx2--;
+          }
 
+        }
+      }
+    }
 
 //space to start
     if (myGameArea.keys.length >=32 && myGameArea.keys[32])
@@ -612,7 +654,7 @@ var Terrain1 = function(arrY, dx)
   this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
-	
+
   this.waterHeight = 100;
   this.display = function()
   {
@@ -622,14 +664,14 @@ var Terrain1 = function(arrY, dx)
     this.collisionHigh= this.arrY.length;
 
     ctx = myGameArea.context;
-    
+
     ctx.save();
     ctx.globalAlpha = 0.5;
     ctx.translate(0 -terrain.scrollX, 700-this.waterHeight-terrain.scrollY )
     ctx.fillStyle = "#8080FF";
     ctx.fillRect( -0 , -0, 1000,this.waterHeight);
     ctx.restore();
-    
+
     ctx.fillStyle = '#808080';
     ctx.beginPath();
     ctx.moveTo( - this.scrollX,2000 -this.scrollY);
@@ -670,7 +712,7 @@ function updateGameArea() {
 
     //console.log(bridge.points[0].);
   }
-      
+
     bridge.display();
     terrain.display();
 }
